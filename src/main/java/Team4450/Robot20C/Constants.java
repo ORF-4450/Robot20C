@@ -27,41 +27,33 @@ public final class Constants
 	public static Properties	robotProperties;
 	  
 	public static boolean		isClone = false, isComp = false;
-	  
-	//public static RobotState		currentRobotState = RobotState.boot, lastRobotState = RobotState.boot;
 	    	
 	public static DriverStation.Alliance	alliance;
 	public static int                       location, matchNumber;
 	public static String					eventName, gameMessage;
 	    
-	//Thread               	monitorBatteryThread, monitorPDPThread;
-	//MonitorCompressor		monitorCompressorThread;
-	public static CameraFeed	cameraThread;
-
-	// Drive motor Can Talon port assignments.
-	public static final int		DBLF = 1, DBLR = 2, DBRF = 3, DBRR = 4;
+	// Drive motor controller port assignments.
+	public static final int		LF_TALON = 1, LR_TALON = 2, RF_TALON = 3, RR_TALON = 4;
 	
-	public static final int		PICKUP_TALON = 6;
+	// Other motor controller port assignments
+	public static final int		PICKUP_TALON = 6, BELT_TALON = 7, WINCH_FRONT_VICTOR = 8, WINCH_BACK_VICTOR = 9;
+	public static final int		HOOK_VICTOR = 10, COLOR_WHEEL_VICTOR = 11;
 	
 	// Joystick port assignments.
 	public static final int		LEFT_STICK = 0, RIGHT_STICK = 1, UTILITY_STICK = 2, LAUNCH_PAD = 4;
 
-	public final static ValveDA	highLowValve = new ValveDA(0);			// For gearbox.
-	public final static ValveDA	pickupValve = new ValveDA(2);			// For pickup arm.
-	public final static ValveDA	climberBrake = new ValveDA(4);			// For climber brake.
-	  
-	public static DigitalInput	winchSwitch = new DigitalInput(0);
-	public static DigitalInput	ballEye = new DigitalInput(3);
-	  
-	public final static AnalogInput	pressureSensor = new AnalogInput(0);
-	  
-	public final static PowerDistributionPanel	pdp = new PowerDistributionPanel();
+	// Pneumatic valve controller port assignments.
+	public static final int		COMPRESSOR = 0;
+	public static final int		HIGHLOW_VALVE = 0, PICKUP_VALVE = 2, CLIMBER_BRAKE_VALVE = 4;
 
-	public final static Compressor	compressor = new Compressor(0);		// Compressor class represents the PCM.
+	// Digital Input port assignments.
+	public static final int		WINCH_SWITCH = 0, WINCH_ENCODER = 1, BALL_EYE = 3;
+	  
+	// Analog Input port assignments.
+	public final static int		PRESSURE_SENSOR = 0;
 
 	public final static DriverStation	ds = DriverStation.getInstance();
 
-	public static NavX			navx;
-
-	public static final double	TALON_RAMP_RATE = 0.5;
+	public static final double	TALON_RAMP_RATE = 0.5, DRIVE_WHEEL_DIAMETER = 6.125;
+	
 }

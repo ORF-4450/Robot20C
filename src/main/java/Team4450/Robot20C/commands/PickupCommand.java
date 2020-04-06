@@ -24,7 +24,7 @@ public class PickupCommand extends CommandBase
 	  pickup = subsystem;
 	  
 	  // Use addRequirements() here to declare subsystem dependencies.
-	  addRequirements(this.pickup);
+	  addRequirements(pickup);
   }
 
   // Called when the command is initially scheduled.

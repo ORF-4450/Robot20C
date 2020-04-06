@@ -5,23 +5,32 @@ import static Team4450.Robot20C.Constants.*;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
 
 import Team4450.Lib.Util;
-
+import Team4450.Lib.ValveDA;
+import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.InterruptHandlerFunction;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class Pickup extends SubsystemBase
 {
-	public static WPI_TalonSRX	pickupTalon;
-	
-	private boolean				extended = false, pickupRunning = false;
+	private WPI_TalonSRX	pickupTalon;
+
+	private ValveDA			pickupValve = new ValveDA(PICKUP_VALVE);
+
+	private DigitalInput	ballEye = new DigitalInput(BALL_EYE);
+
+	private boolean			extended = false, pickupRunning = false;
 	
 	public Pickup ()
 	{
 		Util.consoleLog();
 
 		pickupTalon = new WPI_TalonSRX(PICKUP_TALON);
+		  
+		pickupTalon.setInverted(true);
 
+		InitializeCANTalon(pickupTalon);
+		
 		// Configure interrupt handler for the ballEye optical ball detector.
 		
 		ballEye.requestInterrupts(new InterruptHandler());
@@ -127,5 +136,15 @@ public class Pickup extends SubsystemBase
 //	     {
 //			return channel;
 //	     }
+	}
+
+	// Initialize and Log status indication from CANTalon. If we see an exception
+	// or a talon has low voltage value, it did not get recognized by the RR on start up.
+	  
+	private static void InitializeCANTalon(WPI_TalonSRX talon)
+	{
+		Util.consoleLog("talon init: %s   voltage=%.1f", talon.getDescription(), talon.getBusVoltage());
+
+		talon.clearStickyFaults(0); //0ms means no blocking.
 	}
 }

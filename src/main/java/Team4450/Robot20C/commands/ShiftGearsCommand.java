@@ -23,7 +23,7 @@ public class ShiftGearsCommand extends CommandBase
 	  driveBase = subsystem;
 	  
 	  // Use addRequirements() here to declare subsystem dependencies.
-	  addRequirements(this.driveBase);
+	  addRequirements(driveBase);
   }
 
   // Called when the command is initially scheduled.

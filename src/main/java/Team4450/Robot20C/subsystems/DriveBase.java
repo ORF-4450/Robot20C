@@ -7,7 +7,9 @@ import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
 
+import Team4450.Lib.SRXMagneticEncoderRelative;
 import Team4450.Lib.Util;
+import Team4450.Lib.ValveDA;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -17,7 +19,12 @@ public class DriveBase extends SubsystemBase
 	private WPI_TalonSRX			LFCanTalon, LRCanTalon, RFCanTalon, RRCanTalon;
 	
 	private DifferentialDrive		robotDrive;
-	
+	  
+	// SRX magnetic encoder plugged into a CAN Talon.
+	private SRXMagneticEncoderRelative	leftEncoder, rightEncoder;
+
+	private ValveDA					highLowValve = new ValveDA(HIGHLOW_VALVE);
+
 	private boolean					talonBrakeMode, lowSpeed, highSpeed;
 	
 	/**
@@ -28,10 +35,10 @@ public class DriveBase extends SubsystemBase
 		Util.consoleLog();
 		
 		// Create the drive Talons.
-		LFCanTalon = new WPI_TalonSRX(DBLF);
-		LRCanTalon = new WPI_TalonSRX(DBLR);
-		RFCanTalon = new WPI_TalonSRX(DBRF);	
-		RRCanTalon = new WPI_TalonSRX(DBRR);	
+		LFCanTalon = new WPI_TalonSRX(LF_TALON);
+		LRCanTalon = new WPI_TalonSRX(LR_TALON);
+		RFCanTalon = new WPI_TalonSRX(RF_TALON);	
+		RRCanTalon = new WPI_TalonSRX(RR_TALON);	
 		
 		// Initialize CAN Talons and write status to log so we can verify
 		// all the Talons are connected.
@@ -51,7 +58,15 @@ public class DriveBase extends SubsystemBase
 
 		// 2018 post season testing showed Anakin liked this setting, smoothing driving.
 		SetCANTalonRampRate(TALON_RAMP_RATE);
-	
+		  
+		// Configure SRX encoders as needed for measuring velocity and distance. 
+		// Wheel diameter is in inches. Adjust for each years robot.
+		
+		rightEncoder = new SRXMagneticEncoderRelative(RRCanTalon, DRIVE_WHEEL_DIAMETER);
+		leftEncoder = new SRXMagneticEncoderRelative(LRCanTalon, DRIVE_WHEEL_DIAMETER);
+		  
+		leftEncoder.setInverted(true);
+
 		// For 2020 robot, put rear talons into a differential drive object and set the
 	    // front talons to follow the rears.
 		  
@@ -60,6 +75,8 @@ public class DriveBase extends SubsystemBase
 		  
 		robotDrive = new DifferentialDrive(LRCanTalon, RRCanTalon);
 	
+		// Always start in low gear.
+		
 		lowSpeed();
 	}
 	
@@ -84,7 +101,7 @@ public class DriveBase extends SubsystemBase
 	// Initialize and Log status indication from CANTalon. If we see an exception
 	// or a talon has low voltage value, it did not get recognized by the RR on start up.
 	  
-	public static void InitializeCANTalon(WPI_TalonSRX talon)
+	private static void InitializeCANTalon(WPI_TalonSRX talon)
 	{
 		Util.consoleLog("talon init: %s   voltage=%.1f", talon.getDescription(), talon.getBusVoltage());
 
@@ -93,7 +110,7 @@ public class DriveBase extends SubsystemBase
 	  
 	// Set neutral behavior of drive CAN Talons. True = brake mode, false = coast mode.
 
-	public void SetCANTalonBrakeMode(boolean brakeMode)
+	private void SetCANTalonBrakeMode(boolean brakeMode)
 	{
 		Util.consoleLog("brakes on=%b", brakeMode);
 		  
@@ -154,7 +171,6 @@ public class DriveBase extends SubsystemBase
 
 	/**
 	 * Set gear boxes into low speed. Pushes the dog ring to the inside.
-	 * Brake mode off.
 	 */
 	public void lowSpeed()
 	{
@@ -171,7 +187,6 @@ public class DriveBase extends SubsystemBase
 
 	/**
 	 * Set gear boxes into high speed. Pushes the dog ring to the outside.
-	 * Brake mode on.
 	 */
 	public void highSpeed()
 	{
@@ -202,5 +217,16 @@ public class DriveBase extends SubsystemBase
 	public boolean isHighSpeed()
 	{
 		return highSpeed;
+	}
+	
+	/**
+	 * Reset the drive wheel encoders.
+	 */
+	public void resetEncoders()
+	{
+		Util.consoleLog();
+		
+		leftEncoder.reset();
+		rightEncoder.reset();
 	}
 }
