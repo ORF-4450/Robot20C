@@ -2,7 +2,7 @@
 package Team4450.Robot20C;
 
 import Team4450.Lib.*;
-
+import Team4450.Robot20C.subsystems.ColorWheel;
 import static Team4450.Robot20C.Constants.*;
 
 import edu.wpi.first.wpilibj.TimedRobot;
@@ -18,8 +18,6 @@ import edu.wpi.first.wpilibj2.command.CommandScheduler;
  */
 public class Robot extends TimedRobot 
 {
-  private Command 			autonomousCommand;
-
   private RobotContainer	robotContainer;
 
   /**
@@ -157,7 +155,11 @@ public class Robot extends TimedRobot
 	  SmartDashboard.putBoolean("Disabled", false);
 	  SmartDashboard.putBoolean("Auto Mode", true);
 	  
-	  autonomousCommand = robotContainer.getAutonomousCommand();
+	  robotContainer.getMatchInformation();
+	  
+	  // RobotContainer figures out which auto command is selected to run.
+	  
+	  Command autonomousCommand = robotContainer.getAutonomousCommand();
 
 	  // schedule the autonomous command (example)
 	  
@@ -180,18 +182,17 @@ public class Robot extends TimedRobot
   public void teleopInit()
   {
 	  Util.consoleLog();
+	  
+	  robotContainer.getMatchInformation();
       
-	  LCD.printLine(LCD_1, "Mode: teleop All=%s, Start=%d, FMS=%b", alliance.name(), location, ds.isFMSAttached());
+	  LCD.printLine(LCD_1, "Mode: teleop  All=%s, Start=%d, FMS=%b, msg=%s", alliance.name(), location, 
+			  ds.isFMSAttached(), gameMessage);
 
 	  SmartDashboard.putBoolean("Disabled", false);
 	  SmartDashboard.putBoolean("Teleop Mode", true);
 	  
-	  // This makes sure that the autonomous stops running when
-	  // teleop starts running. If you want the autonomous to
-	  // continue until interrupted by another command, remove
-	  // this line or comment it out.
-	  
-	  //if (autonomousCommand != null) autonomousCommand.cancel();
+	  // Driving handled by DriveCommand which is default command for the DriveBase.
+	  // Other commands scheduled by joystick buttons.
   }
 
   /**
@@ -201,6 +202,11 @@ public class Robot extends TimedRobot
   @Override
   public void teleopPeriodic() 
   {
+		// Update game color on DS. Can change at any time during teleop.
+
+		String gameData = ds.getGameSpecificMessage();
+		
+		if (gameData != null) SmartDashboard.putString("GameColor", ColorWheel.convertGameColor(gameData));
   }
 
   /**

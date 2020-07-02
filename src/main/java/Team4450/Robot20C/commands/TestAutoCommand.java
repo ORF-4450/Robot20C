@@ -36,7 +36,8 @@ public class TestAutoCommand extends CommandBase
 		
 		driveBase.setMotorSafety(false);  // Turn off watchdog.
 		
-		LCD.printLine(LCD_1, "Mode: Auto - TestAutoCommand");
+	  	LCD.printLine(LCD_1, "Mode: Auto - TestAutoCommand - All=%s, Location=%d, FMS=%b, msg=%s", alliance.name(), location, 
+				ds.isFMSAttached(), gameMessage);
 	}
 	
 	/**

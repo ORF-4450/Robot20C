@@ -7,6 +7,7 @@ import java.util.function.DoubleSupplier;
 import static Team4450.Robot20C.Constants.*;
 import Team4450.Lib.LCD;
 import Team4450.Lib.Util;
+import Team4450.Lib.SRXMagneticEncoderRelative.PIDRateType;
 import Team4450.Robot20C.subsystems.DriveBase;
 
 import edu.wpi.first.wpilibj2.command.CommandBase;
@@ -43,6 +44,14 @@ public class DriveCommand extends CommandBase
 
   /**
    *  Called when the command is initially scheduled.
+   *  NOTE: This command is set as the default for the drive base. That
+   *  means it runs as long as no other command that uses the drive base
+   *  runs. If another command runs, like shift gears for instance, this
+   *  command will be interrupted and then rescheduled when shift gears
+   *  is finished. That reschedule means initialize() is called again.
+   *  So it is important to realize this command does not "exist" for
+   *  the entire run of teleop. It comes and goes when it is preempted
+   *  by another command. All commands work like this.
    */
   @Override
   public void initialize() 
@@ -63,9 +72,15 @@ public class DriveCommand extends CommandBase
   {
 	  double leftY = leftSpeed.getAsDouble(), rightY = rightSpeed.getAsDouble();
 	  
+	  LCD.printLine(LCD_2, "leftenc=%d  rightenc=%d", driveBase.leftEncoder.get(), driveBase.rightEncoder.get());			
+
 	  LCD.printLine(LCD_3, "leftY=%.3f (%.3f)  rightY=%.3f (%.3f)", leftY, 
 				 driveBase.getLeftPower(), rightY, driveBase.getRightPower());
-	  
+
+	  LCD.printLine(LCD_7, "Lrpm=%d - Rrpm=%d  Lmax vel=%.3f - Rmax vel=%.3f", driveBase.leftEncoder.getRPM(),
+			  driveBase.rightEncoder.getRPM(), driveBase.leftEncoder.getMaxVelocity(PIDRateType.velocityMPS),
+			  driveBase.rightEncoder.getMaxVelocity(PIDRateType.velocityMPS));
+
 	  driveBase.tankDrive(leftY, rightY);
   }
 
@@ -78,6 +93,8 @@ public class DriveCommand extends CommandBase
 	  Util.consoleLog("interrupted=%b", interrupted);
 	  
 	  driveBase.stop();
+	  
+	  driveBase.setMotorSafety(false); 	// Turn off watchdog.
   }
 
   /**

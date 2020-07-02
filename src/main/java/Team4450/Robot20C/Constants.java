@@ -22,7 +22,7 @@ import edu.wpi.first.wpilibj.PowerDistributionPanel;
  */
 public final class Constants
 {
-	public static String		PROGRAM_NAME = "RAC20C-07.01.20-6";
+	public static String		PROGRAM_NAME = "RAC20C-07.02.20-1";
 
 	public static Properties	robotProperties;
 	  
@@ -59,8 +59,9 @@ public final class Constants
 	public static final double	TALON_RAMP_RATE = 0.5, DRIVE_WHEEL_DIAMETER = 6.125;
 	
 	// LCD display line number constants showing class where the line is set.
-	public static final int		LCD_1 = 1;	// Robot.
-	public static final int		LCD_2 = 2;	// RobotContainer.
+	public static final int		LCD_1 = 1;	// Robot, TestAutoCommand.
+	public static final int		LCD_2 = 2;	// DriveCommand.
 	public static final int		LCD_3 = 3;	// DriveCommand.
+	public static final int		LCD_7 = 7;	// DriveCommand
 	
 }

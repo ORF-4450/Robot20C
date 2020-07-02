@@ -25,7 +25,7 @@ import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 
 import Team4450.Robot20C.commands.DriveCommand;
-import Team4450.Robot20C.commands.PickupCommand;
+import Team4450.Robot20C.commands.PickupDeployCommand;
 import Team4450.Robot20C.commands.ShiftGearsCommand;
 import Team4450.Robot20C.commands.TestAutoCommand;
 import Team4450.Robot20C.subsystems.Climber;
@@ -193,7 +193,7 @@ public class RobotContainer
 		
 		// Utility stick buttons.
 		new JoystickButton(utilityStick.getJoyStick(), JoyStick.JoyStickButtonIDs.TOP_BACK.value)
-        	.whenPressed(new PickupCommand(pickup));
+        	.whenPressed(new PickupDeployCommand(pickup));
 		
 		// Launch pad buttons.
 		new JoystickButton(launchPad, LaunchPad.LaunchPadControlIDs.BUTTON_RED.value)
@@ -223,9 +223,11 @@ public class RobotContainer
 		{
 			case NoProgram:
 				autoCommand = null;
+				break;
 				
 			case TestAuto:
 				autoCommand = new TestAutoCommand(driveBase);
+				break;
 		}
 
 		// The command to be run in autonomous.
@@ -247,9 +249,6 @@ public class RobotContainer
 	  	Util.consoleLog("Alliance=%s, Location=%d, FMS=%b event=%s match=%d msg=%s", 
     		  		   alliance.name(), location, ds.isFMSAttached(), eventName, matchNumber, 
     		  		   gameMessage);
-
-	  	LCD.printLine(LCD_2, "Alliance=%s, Location=%d, FMS=%b, msg=%s", alliance.name(), location, 
-				ds.isFMSAttached(), gameMessage);
 	}
 		
 	// Configure SendableChooser (drop down list) with auto program choices and

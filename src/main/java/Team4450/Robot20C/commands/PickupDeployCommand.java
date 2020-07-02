@@ -6,9 +6,9 @@ import Team4450.Robot20C.subsystems.Pickup;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 
 /**
- * Command that toggles Pickup operation.
+ * Command that manually toggles Pickup operation.
  */
-public class PickupCommand extends CommandBase 
+public class PickupDeployCommand extends CommandBase 
 {
   private final Pickup pickup;
 
@@ -16,7 +16,7 @@ public class PickupCommand extends CommandBase
    * Creates a new PickupCommand.
    * @param subsystem The subsystem used by this command.
    */
-  public PickupCommand(Pickup subsystem) 
+  public PickupDeployCommand(Pickup subsystem) 
   {
 	  Util.consoleLog();
 	  

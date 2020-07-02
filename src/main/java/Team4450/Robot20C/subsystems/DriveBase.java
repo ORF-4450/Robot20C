@@ -21,7 +21,7 @@ public class DriveBase extends SubsystemBase
 	private DifferentialDrive	robotDrive;
 	  
 	// SRX magnetic encoder plugged into a CAN Talon.
-	private SRXMagneticEncoderRelative	leftEncoder, rightEncoder;
+	public SRXMagneticEncoderRelative	leftEncoder, rightEncoder;
 
 	private ValveDA					highLowValve = new ValveDA(HIGHLOW_VALVE);
 
