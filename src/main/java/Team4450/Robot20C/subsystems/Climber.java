@@ -2,6 +2,7 @@ package Team4450.Robot20C.subsystems;
 
 import static Team4450.Robot20C.Constants.*;
 
+import Team4450.Lib.Util;
 import Team4450.Lib.ValveDA;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.Encoder;
@@ -18,7 +19,9 @@ public class Climber
 
 	public Climber()
 	{
-		// TODO Auto-generated constructor stub
+		Util.consoleLog();
+		
+		Util.consoleLog("Climber created!");
 	}
 
 }

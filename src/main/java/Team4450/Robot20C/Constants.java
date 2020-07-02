@@ -60,6 +60,7 @@ public final class Constants
 	
 	// LCD display line number constants showing class where the line is set.
 	public static final int		LCD_1 = 1;	// Robot.
+	public static final int		LCD_2 = 2;	// RobotContainer.
 	public static final int		LCD_3 = 3;	// DriveCommand.
 	
 }

@@ -5,6 +5,7 @@ import static Team4450.Robot20C.Constants.*;
 
 import Team4450.Lib.CameraFeed;
 import Team4450.Lib.JoyStick;
+import Team4450.Lib.LCD;
 import Team4450.Lib.LaunchPad;
 import Team4450.Lib.MonitorBattery;
 import Team4450.Lib.MonitorCompressor;
@@ -27,6 +28,7 @@ import Team4450.Robot20C.commands.DriveCommand;
 import Team4450.Robot20C.commands.PickupCommand;
 import Team4450.Robot20C.commands.ShiftGearsCommand;
 import Team4450.Robot20C.commands.TestAutoCommand;
+import Team4450.Robot20C.subsystems.Climber;
 import Team4450.Robot20C.subsystems.ColorWheel;
 import Team4450.Robot20C.subsystems.DriveBase;
 import Team4450.Robot20C.subsystems.Pickup;
@@ -42,6 +44,7 @@ public class RobotContainer
 	private final DriveBase 	driveBase;
 	private final Pickup		pickup;
 	private final ColorWheel	colorWheel;
+	private final Climber		climber;
 
 	// Joy sticks. 3 Joy sticks use RobotLib JoyStick class for some of its extra features. 
 	// Specify trigger for monitoring to cause JoyStick event monitoring to not start. We will 
@@ -127,13 +130,15 @@ public class RobotContainer
 		driveBase = new DriveBase();
 		pickup = new Pickup();
 		colorWheel = new ColorWheel();
+		climber = new Climber();
 
 		// Configure the button bindings
+		
 		configureButtonBindings();
 	  
 		// Set the default drive command. This command will be scheduled automatically to run
 		// every teleop period and so use the joy sticks to drive the robot. We pass in function
-		//  references so the command can read the sticks directly as DoubleProviders.
+		// references so the command can read the sticks directly as DoubleProviders.
 	  
 		driveBase.setDefaultCommand(new DriveCommand(driveBase, () -> leftStick.GetY(), () -> rightStick.GetY()));
 
@@ -242,6 +247,9 @@ public class RobotContainer
 	  	Util.consoleLog("Alliance=%s, Location=%d, FMS=%b event=%s match=%d msg=%s", 
     		  		   alliance.name(), location, ds.isFMSAttached(), eventName, matchNumber, 
     		  		   gameMessage);
+
+	  	LCD.printLine(LCD_2, "Alliance=%s, Location=%d, FMS=%b, msg=%s", alliance.name(), location, 
+				ds.isFMSAttached(), gameMessage);
 	}
 		
 	// Configure SendableChooser (drop down list) with auto program choices and

@@ -121,6 +121,16 @@ public class Robot extends TimedRobot
 	  SmartDashboard.putBoolean("FMS", ds.isFMSAttached());
 	  SmartDashboard.putBoolean("Overload", false);
 	  SmartDashboard.putNumber("AirPressure", 0);
+	  SmartDashboard.putBoolean("AltDriveMode", false);
+	  SmartDashboard.putBoolean("SteeringAssist", false);
+	  SmartDashboard.putBoolean("Brake", false);
+	  SmartDashboard.putBoolean("Pickup", false);
+	  SmartDashboard.putBoolean("PickupExtended", false);
+	  SmartDashboard.putBoolean("CountingTurns", false);
+	  SmartDashboard.putBoolean("RotatingToTarget", false);
+	  SmartDashboard.putBoolean("Shooter", false);
+	  SmartDashboard.putBoolean("Belt", false);
+	  SmartDashboard.putString("GameColor", "");
 
   }
 
@@ -142,7 +152,7 @@ public class Robot extends TimedRobot
   {
 	  Util.consoleLog();
       
-	  LCD.printLine(LCD_1, "Mode: Auto");
+	  LCD.printLine(LCD_1, "Mode: Auto - No Program");
 
 	  SmartDashboard.putBoolean("Disabled", false);
 	  SmartDashboard.putBoolean("Auto Mode", true);
