@@ -32,7 +32,7 @@ public class Robot extends TimedRobot
 	  try
 	  {
 	   	  LCD.clearAll();
-	   	  LCD.printLine(1, "Mode: RobotInit");
+	   	  LCD.printLine(LCD_1, "Mode: RobotInit");
 
 	   	  // Set up our custom logger.
 
@@ -126,6 +126,7 @@ public class Robot extends TimedRobot
 
   /**
    * This function is called periodically during disabled mode.
+   * Technically there should be nothing here.
    */
   @Override
   public void disabledPeriodic() 
@@ -155,6 +156,7 @@ public class Robot extends TimedRobot
 
   /**
    * This function is called periodically during autonomous.
+   * Technically there should be nothing here.
    */
   @Override
   public void autonomousPeriodic() 
@@ -184,6 +186,7 @@ public class Robot extends TimedRobot
 
   /**
    * This function is called periodically during teleop.
+   * Technically there should be nothing here.
    */
   @Override
   public void teleopPeriodic() 

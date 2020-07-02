@@ -1,5 +1,6 @@
 package Team4450.Robot20C.commands;
 
+import Team4450.Lib.LCD;
 import Team4450.Lib.Util;
 import Team4450.Robot20C.subsystems.DriveBase;
 import edu.wpi.first.wpilibj2.command.CommandBase;
@@ -33,6 +34,11 @@ public class TestAutoCommand extends CommandBase
 		Util.consoleLog();
 		
 		driveBase.setMotorSafety(false);  // Turn off watchdog.
+		
+		//Util.consoleLog("Alliance=%s, Location=%d, Program=%s, FMS=%b, msg=%s", robot.alliance.name(), robot.location, 
+		//		program.name(), Devices.ds.isFMSAttached(), robot.gameMessage);
+		//LCD.printLine(2, "Alliance=%s, Location=%d, FMS=%b, Program=%s, msg=%s", robot.alliance.name(), robot.location, 
+		//		Devices.ds.isFMSAttached(), program.name(), robot.gameMessage);
 	}
 	
 	/**

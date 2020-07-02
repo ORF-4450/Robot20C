@@ -14,10 +14,10 @@ import Team4450.Lib.Util;
 import Team4450.Lib.JoyStick.JoyStickButtonIDs;
 import edu.wpi.first.wpilibj.AnalogInput;
 import edu.wpi.first.wpilibj.Compressor;
-import edu.wpi.first.wpilibj.Encoder;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.PowerDistributionPanel;
-import edu.wpi.first.wpilibj.CounterBase.EncodingType;
+import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
+import edu.wpi.first.wpilibj.smartdashboard.SendableRegistry;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
@@ -27,6 +27,7 @@ import Team4450.Robot20C.commands.DriveCommand;
 import Team4450.Robot20C.commands.PickupCommand;
 import Team4450.Robot20C.commands.ShiftGearsCommand;
 import Team4450.Robot20C.commands.TestAutoCommand;
+import Team4450.Robot20C.subsystems.ColorWheel;
 import Team4450.Robot20C.subsystems.DriveBase;
 import Team4450.Robot20C.subsystems.Pickup;
 
@@ -38,8 +39,9 @@ import Team4450.Robot20C.subsystems.Pickup;
  */
 public class RobotContainer 
 {
-	private final DriveBase driveBase;
-	private final Pickup	pickup;
+	private final DriveBase 	driveBase;
+	private final Pickup		pickup;
+	private final ColorWheel	colorWheel;
 
 	// Joy sticks. 3 Joy sticks use RobotLib JoyStick class for some of its extra features. 
 	// Specify trigger for monitoring to cause JoyStick event monitoring to not start. We will 
@@ -62,6 +64,15 @@ public class RobotContainer
 	private Thread      		monitorBatteryThread, monitorPDPThread;
 	private MonitorCompressor	monitorCompressorThread;
 	private CameraFeed			cameraFeed;
+
+	// List of autonomous programs.
+	private enum AutoProgram
+	{
+		NoProgram,
+		TestAuto
+	}
+
+	private static SendableChooser<AutoProgram>	autoChooser;
 
 	/**
 	 * The container for the robot. Contains subsystems, OI devices, and commands.
@@ -115,6 +126,7 @@ public class RobotContainer
 		
 		driveBase = new DriveBase();
 		pickup = new Pickup();
+		colorWheel = new ColorWheel();
 
 		// Configure the button bindings
 		configureButtonBindings();
@@ -154,6 +166,8 @@ public class RobotContainer
 			Exception e = new Exception("NavX is NOT connected!");
 			Util.logException(e);
 		}
+		
+		setAutoChoices();
 	}
 
 	/**
@@ -183,19 +197,40 @@ public class RobotContainer
 
 	/**
 	 * Use this to pass the autonomous command(s) to the main {@link Robot} class.
+	 * Determines which auto command from the selection made by the operator on the
+	 * DS drop down list of commands.
 	 * @return The command to run in autonomous
 	 */
 	public Command getAutonomousCommand() 
 	{
-		Util.consoleLog();
-	  
-		// An ExampleCommand to be run in autonomous.
+		AutoProgram		program = AutoProgram.NoProgram;
+		Command			autoCommand = null;
 		
-		return new TestAutoCommand(driveBase);
+		Util.consoleLog();
+
+		try
+		{
+			program = autoChooser.getSelected();
+		}
+		catch (Exception e)	{ Util.logException(e); }
+		
+		switch (program)
+		{
+			case NoProgram:
+				autoCommand = null;
+				
+			case TestAuto:
+				autoCommand = new TestAutoCommand(driveBase);
+		}
+
+		// The command to be run in autonomous.
+		
+		return autoCommand;
 	}
   
-	// Get and log information about the current match from the FMS or DS.
-  
+	/**
+	 *  Get and log information about the current match from the FMS or DS.
+	 */
 	public void getMatchInformation()
 	{
 		alliance = ds.getAlliance();
@@ -208,4 +243,21 @@ public class RobotContainer
     		  		   alliance.name(), location, ds.isFMSAttached(), eventName, matchNumber, 
     		  		   gameMessage);
 	}
+		
+	// Configure SendableChooser (drop down list) with auto program choices and
+	// send them to SmartDashboard/ShuffleBoard.
+	
+	private static void setAutoChoices()
+	{
+		Util.consoleLog();
+		
+		autoChooser = new SendableChooser<AutoProgram>();
+		
+		SendableRegistry.add(autoChooser, "Auto Program");
+		autoChooser.setDefaultOption("No Program", AutoProgram.NoProgram);
+		autoChooser.addOption("Test Auto Program", AutoProgram.TestAuto);		
+				
+		SmartDashboard.putData(autoChooser);
+	}
+
 }
