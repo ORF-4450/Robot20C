@@ -9,7 +9,7 @@ plugins {
 sourceCompatibility = JavaVersion.VERSION_11
 targetCompatibility = JavaVersion.VERSION_11
 
-def ROBOT_MAIN_CLASS = "Team4450.Robot20.Main"
+def ROBOT_MAIN_CLASS = "Team4450.Robot20C.Main"
 
 // If you want the build task to automatically attempt to deploy to the robot, leave this as is.
 // If you are using VSCode to deploy, it is recommended to comment this line out and use the Deploy command in VSCode.
@@ -84,7 +84,7 @@ dependencies {
 
     // Enable simulation gui support. Must check the box in vscode to enable support
     // upon debugging
-    simulation wpi.deps.sim.gui(wpi.platforms.desktop, false)
+    //simulation wpi.deps.sim.gui(wpi.platforms.desktop, false)
     
     compile files("C:\\Users\\rcorn\\wpilib\\user\\RobotLib\\Pathfinder-java-1.8.jar")    
 }

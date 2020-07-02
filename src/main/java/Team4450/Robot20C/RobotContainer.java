@@ -38,11 +38,8 @@ import Team4450.Robot20C.subsystems.Pickup;
  */
 public class RobotContainer 
 {
-	// The robot's subsystems and commands are defined here...
-	private final DriveBase driveBase = new DriveBase();
-	private final Pickup	pickup = new Pickup();
-
-	private final TestAutoCommand autoCommand = new TestAutoCommand(driveBase);
+	private final DriveBase driveBase;
+	private final Pickup	pickup;
 
 	// Joy sticks. 3 Joy sticks use RobotLib JoyStick class for some of its extra features. 
 	// Specify trigger for monitoring to cause JoyStick event monitoring to not start. We will 
@@ -102,12 +99,11 @@ public class RobotContainer
 
 		navx = NavX.getInstance(NavX.PortType.SPI);
 
-		// Add navx as a Sendable. Updates the Gyro indicator automatically when 
-		// SmartDashboard.updateValues() is called elsewhere.
+		// Add navx as a Sendable. Updates the Gyro indicator automatically.
  		
 		SmartDashboard.putData("Gyro2", navx);
 
-		// Invert driving joy stick Y axis so + values mean f.
+		// Invert driving joy stick Y axis so + values mean forward.
 	  
 		leftStick.invertY(true);
 		rightStick.invertY(true);
@@ -115,11 +111,17 @@ public class RobotContainer
 		utilityStick.deadZoneY(.25);
 		utilityStick.deadZoneX(.25);
 
+		// Create subsystems prior to button mapping.
+		
+		driveBase = new DriveBase();
+		pickup = new Pickup();
+
 		// Configure the button bindings
 		configureButtonBindings();
 	  
 		// Set the default drive command. This command will be scheduled automatically to run
-		// every loop and so handle the joy sticks to drive the robot.
+		// every teleop period and so use the joy sticks to drive the robot. We pass in function
+		//  references so the command can read the sticks directly as DoubleProviders.
 	  
 		driveBase.setDefaultCommand(new DriveCommand(driveBase, () -> leftStick.GetY(), () -> rightStick.GetY()));
 
@@ -180,16 +182,16 @@ public class RobotContainer
 	}
 
 	/**
-	 * Use this to pass the autonomous command to the main {@link Robot} class.
-	 *
-	 * @return the command to run in autonomous
+	 * Use this to pass the autonomous command(s) to the main {@link Robot} class.
+	 * @return The command to run in autonomous
 	 */
 	public Command getAutonomousCommand() 
 	{
 		Util.consoleLog();
 	  
-		// An ExampleCommand will run in autonomous
-		return autoCommand;
+		// An ExampleCommand to be run in autonomous.
+		
+		return new TestAutoCommand(driveBase);
 	}
   
 	// Get and log information about the current match from the FMS or DS.

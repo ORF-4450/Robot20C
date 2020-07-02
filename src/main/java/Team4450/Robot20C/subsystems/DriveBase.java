@@ -16,9 +16,9 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class DriveBase extends SubsystemBase 
 {
-	private WPI_TalonSRX			LFCanTalon, LRCanTalon, RFCanTalon, RRCanTalon;
+	private WPI_TalonSRX		LFCanTalon, LRCanTalon, RFCanTalon, RRCanTalon;
 	
-	private DifferentialDrive		robotDrive;
+	private DifferentialDrive	robotDrive;
 	  
 	// SRX magnetic encoder plugged into a CAN Talon.
 	private SRXMagneticEncoderRelative	leftEncoder, rightEncoder;
@@ -51,10 +51,10 @@ public class DriveBase extends SubsystemBase
 		LFCanTalon.setInverted(true);
 		LRCanTalon.setInverted(true);
 		  
-		// These should be true for regular tank. Like this for 
+		// These should be true for regular tank. false for 
 		// velocity tank.
-		RFCanTalon.setInverted(false);
-		RRCanTalon.setInverted(false);
+		RFCanTalon.setInverted(true);
+		RRCanTalon.setInverted(true);
 
 		// 2018 post season testing showed Anakin liked this setting, smoothing driving.
 		SetCANTalonRampRate(TALON_RAMP_RATE);
@@ -74,6 +74,12 @@ public class DriveBase extends SubsystemBase
 		RFCanTalon.set(ControlMode.Follower, RRCanTalon.getDeviceID());
 		  
 		robotDrive = new DifferentialDrive(LRCanTalon, RRCanTalon);
+
+   		// Configure starting motor safety;
+   		
+   		robotDrive.stopMotor();
+   		robotDrive.setSafetyEnabled(false);
+   		robotDrive.setExpiration(0.1);
 	
 		// Always start in low gear.
 		
@@ -86,6 +92,9 @@ public class DriveBase extends SubsystemBase
 		// This method will be called once per scheduler run
 	}
 	
+	/**
+	 * Stops all motors.
+	 */
 	public void stop()
 	{
 		Util.consoleLog();
@@ -93,6 +102,11 @@ public class DriveBase extends SubsystemBase
 		robotDrive.stopMotor();
 	}
 	
+	/**
+	 * Tank drive function. Passes left/right speed values to the robot drive.
+	 * @param leftSpeed Left power setting -1.0 to +1.0.
+	 * @param rightSpeed RIght power setting -1.0 to +1.0.
+	 */
 	public void tankDrive(double leftSpeed, double rightSpeed)
 	{
 		robotDrive.tankDrive(leftSpeed, rightSpeed);
@@ -131,14 +145,20 @@ public class DriveBase extends SubsystemBase
 		 RRCanTalon.setNeutralMode(newMode);
 	}
 	  
+	/**
+	 * Returns drive Talon brake mode.
+	 * @return True if Talons set to brake, false if coast.
+	 */
 	public boolean isBrakeMode()
 	{
 		return talonBrakeMode;
 	}  
 	  
-	// Set CAN Talon voltage ramp rate. Rate is number of seconds from zero to full output.
-	// zero disables.
-	  
+	/**
+	 * Set CAN Talon voltage ramp rate.
+	 * @param seconds Number of seconds from zero to full output.
+	 * zero disables.
+	 */
 	public void SetCANTalonRampRate(double seconds)
 	{
 		Util.consoleLog("%.2f", seconds);
@@ -228,5 +248,32 @@ public class DriveBase extends SubsystemBase
 		
 		leftEncoder.reset();
 		rightEncoder.reset();
+	}
+	
+	/**
+	 * Return right side motor power.
+	 * @return Power level -1.0 to +1.0.
+	 */
+	public double getRightPower()
+	{
+		return RRCanTalon.get();
+	}
+	
+	/**
+	 * Return left side motor power.
+	 * @return Power level -1.0 to +1.0.
+	 */
+	public double getLeftPower()
+	{
+		return LRCanTalon.get();
+	}
+	
+	/**
+	 * Enable/disable drive base motor safety watchdog.
+	 * @param enabled True to enable watchdog, false to disable.
+	 */
+	public void setMotorSafety(boolean enabled)
+	{
+		robotDrive.setSafetyEnabled(enabled);
 	}
 }

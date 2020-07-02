@@ -26,7 +26,9 @@ public class ShiftGearsCommand extends CommandBase
 	  addRequirements(driveBase);
   }
 
-  // Called when the command is initially scheduled.
+  /**
+   * Called when the command is initially scheduled. Toggles high/low gear.
+   */
   @Override
   public void initialize() 
   {
@@ -38,7 +40,10 @@ public class ShiftGearsCommand extends CommandBase
 		  driveBase.lowSpeed();
   }
 
-  // Returns true when the command should end. This means one execution.
+  /** 
+   * Returns true when the command should end. This means one execution\
+   * accomplished in initialize function.
+   */
   @Override
   public boolean isFinished() 
   {

@@ -53,7 +53,7 @@ public class Robot extends TimedRobot
 		
 		  Util.consoleLog("RobotLib=%s", LibraryVersion.version);
 		
-		  // Create SendableVersion object so it will be sent to the dashboard and also
+		  // Create SendableVersion object so it can be sent to the dashboard and also
 		  // log some of it's information.
 			
 		  SendableVersion.INSTANCE.init(PROGRAM_NAME);
@@ -69,7 +69,9 @@ public class Robot extends TimedRobot
 		  // Note: Any Sendables added to SmartDashboard or Shuffleboard are sent to the DS on every
 		  // loop of a TimedRobot. In this case it means that the SendableVersion data would be sent
 		  // to the DS every 20ms even though it does not change. Sendables must be added to the SDB
-		  // or SB in order to be sent so its a catch-22 with Sendables.
+		  // or SB in order to be sent so its a catch-22 with Sendables. So we add the SendableVersion
+		  // here and then just below delete it from the sendable system. This puts the version info
+		  // onto the dashboard but removes it from further updates.
 	   		
 		  SmartDashboard.putData("Version", SendableVersion.INSTANCE);
 		  
@@ -77,6 +79,8 @@ public class Robot extends TimedRobot
 		  // autonomous chooser on the dashboard.
 		  
 		  robotContainer = new RobotContainer();
+		  
+		  SendableVersion.INSTANCE.removeSendable();
 	  }
 	  catch (Exception e) {Util.logException(e);}
   }
@@ -94,7 +98,8 @@ public class Robot extends TimedRobot
 	  // Runs the Scheduler.  This is responsible for polling buttons, adding newly-scheduled
 	  // commands, running already-scheduled commands, removing finished or interrupted commands,
 	  // and running subsystem periodic() methods. This must be called from the robot's periodic
-	  // block in order for anything in the Command-based framework to work.
+	  // function in order for anything in the Command-based framework to work.
+	  
 	  CommandScheduler.getInstance().run();
   }
 
@@ -106,7 +111,7 @@ public class Robot extends TimedRobot
   {
 	  Util.consoleLog();
       
-	  LCD.printLine(1, "Mode: Disabled");
+	  LCD.printLine(LCD_1, "Mode: Disabled");
 	  
 	  // Reset driver station LEDs.
 
@@ -119,20 +124,24 @@ public class Robot extends TimedRobot
 
   }
 
+  /**
+   * This function is called periodically during disabled mode.
+   */
   @Override
   public void disabledPeriodic() 
   {
   }
 
   /**
-   * This autonomous runs the autonomous command selected by your {@link RobotContainer} class.
+   * This function is called once at the start of autonomous mode and
+   * schedules the autonomous command selected by your {@link RobotContainer} class.
    */
   @Override
   public void autonomousInit() 
   {
 	  Util.consoleLog();
       
-	  LCD.printLine(1, "Mode: Auto");
+	  LCD.printLine(LCD_1, "Mode: Auto");
 
 	  SmartDashboard.putBoolean("Disabled", false);
 	  SmartDashboard.putBoolean("Auto Mode", true);
@@ -140,10 +149,8 @@ public class Robot extends TimedRobot
 	  autonomousCommand = robotContainer.getAutonomousCommand();
 
 	  // schedule the autonomous command (example)
-	  if (autonomousCommand != null) 
-	  {
-		  autonomousCommand.schedule();
-	  }
+	  
+	  if (autonomousCommand != null) autonomousCommand.schedule();
   }
 
   /**
@@ -154,12 +161,15 @@ public class Robot extends TimedRobot
   {
   }
 
+  /**
+   * This function is called once at the start of teleop mode.
+   */
   @Override
   public void teleopInit()
   {
 	  Util.consoleLog();
       
-	  LCD.printLine(1, "Mode: teleop All=%s, Start=%d, FMS=%b", alliance.name(), location, ds.isFMSAttached());
+	  LCD.printLine(LCD_1, "Mode: teleop All=%s, Start=%d, FMS=%b", alliance.name(), location, ds.isFMSAttached());
 
 	  SmartDashboard.putBoolean("Disabled", false);
 	  SmartDashboard.putBoolean("Teleop Mode", true);
@@ -168,26 +178,28 @@ public class Robot extends TimedRobot
 	  // teleop starts running. If you want the autonomous to
 	  // continue until interrupted by another command, remove
 	  // this line or comment it out.
-	  if (autonomousCommand != null) 
-	  {
-		  autonomousCommand.cancel();
-	  }
+	  
+	  //if (autonomousCommand != null) autonomousCommand.cancel();
   }
 
   /**
-   * This function is called periodically during operator control.
+   * This function is called periodically during teleop.
    */
   @Override
   public void teleopPeriodic() 
   {
   }
 
+  /**
+   * This function is called once at the start of test mode.
+   */
   @Override
   public void testInit() 
   {
 	  Util.consoleLog();
 	  
 	  // Cancels all running commands at the start of test mode.
+	  
 	  CommandScheduler.getInstance().cancelAll();
   }
 

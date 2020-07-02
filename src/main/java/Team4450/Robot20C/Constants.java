@@ -22,7 +22,7 @@ import edu.wpi.first.wpilibj.PowerDistributionPanel;
  */
 public final class Constants
 {
-	public static String		PROGRAM_NAME = "RAC20C-04.03.20";
+	public static String		PROGRAM_NAME = "RAC20C-07.01.20-6";
 
 	public static Properties	robotProperties;
 	  
@@ -40,20 +40,26 @@ public final class Constants
 	public static final int		HOOK_VICTOR = 10, COLOR_WHEEL_VICTOR = 11;
 	
 	// Joystick port assignments.
-	public static final int		LEFT_STICK = 0, RIGHT_STICK = 1, UTILITY_STICK = 2, LAUNCH_PAD = 4;
+	public static final int		LEFT_STICK = 0, RIGHT_STICK = 1, UTILITY_STICK = 2, LAUNCH_PAD = 3;
 
 	// Pneumatic valve controller port assignments.
 	public static final int		COMPRESSOR = 0;
-	public static final int		HIGHLOW_VALVE = 0, PICKUP_VALVE = 2, CLIMBER_BRAKE_VALVE = 4;
+	public static final int		HIGHLOW_VALVE = 0;			// 0-1 
+	public static final int		PICKUP_VALVE = 2; 			// 2-3
+	public static final int		CLIMBER_BRAKE_VALVE = 4;	// 4-5
 
 	// Digital Input port assignments.
 	public static final int		WINCH_SWITCH = 0, WINCH_ENCODER = 1, BALL_EYE = 3;
 	  
 	// Analog Input port assignments.
-	public final static int		PRESSURE_SENSOR = 0;
+	public static final int		PRESSURE_SENSOR = 0;
 
-	public final static DriverStation	ds = DriverStation.getInstance();
+	public static final DriverStation	ds = DriverStation.getInstance();
 
 	public static final double	TALON_RAMP_RATE = 0.5, DRIVE_WHEEL_DIAMETER = 6.125;
+	
+	// LCD display line number constants showing class where the line is set.
+	public static final int		LCD_1 = 1;	// Robot.
+	public static final int		LCD_3 = 3;	// DriveCommand.
 	
 }

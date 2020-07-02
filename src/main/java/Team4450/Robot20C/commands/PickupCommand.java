@@ -14,7 +14,6 @@ public class PickupCommand extends CommandBase
 
   /**
    * Creates a new PickupCommand.
-   *
    * @param subsystem The subsystem used by this command.
    */
   public PickupCommand(Pickup subsystem) 
@@ -27,7 +26,10 @@ public class PickupCommand extends CommandBase
 	  addRequirements(pickup);
   }
 
-  // Called when the command is initially scheduled.
+  /** 
+   * Called when the command is initially scheduled.
+   * Toggles position of pickup.
+   */
   @Override
   public void initialize() 
   {
@@ -39,7 +41,10 @@ public class PickupCommand extends CommandBase
 		  pickup.extend();
   }
 
-  // Returns true when the command should end. This means one execution.
+  /**
+   *  Returns true when the command should end. This means one execution
+   *  accomplished in initialize function.
+   */
   @Override
   public boolean isFinished() 
   {

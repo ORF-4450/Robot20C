@@ -23,20 +23,32 @@ public class TestAutoCommand extends CommandBase
 		addRequirements(this.driveBase);
 	}
 	
-	// Called when the command is initially scheduled.
+	/**
+	 * Called when the command is initially scheduled. (non-Javadoc)
+	 * @see edu.wpi.first.wpilibj2.command.Command#initialize()
+	 */
 	@Override
 	public void initialize() 
 	{
 		Util.consoleLog();
+		
+		driveBase.setMotorSafety(false);  // Turn off watchdog.
 	}
 	
-	// Called every time the scheduler runs while the command is scheduled.
+	/**
+	 *  Called every time the scheduler runs while the command is scheduled.
+	 */
 	@Override
 	public void execute() 
 	{
+		Util.consoleLog();
+		
+		//driveBase.tankDrive(.50, .50);
 	}
 	
-	// Called once the command ends or is interrupted.
+	/**
+	 *  Called when the command ends or is interrupted.
+	 */
 	@Override
 	public void end(boolean interrupted) 
 	{
@@ -45,10 +57,12 @@ public class TestAutoCommand extends CommandBase
 		driveBase.stop();
 	}
 	
-	// Returns true when the command should end.
+	/**
+	 *  Returns true when the command should end.
+	 */
 	@Override
 	public boolean isFinished() 
 	{
-		return true;
+		return false;	// false makes this command run until auto mode ends.
 	}
 }
