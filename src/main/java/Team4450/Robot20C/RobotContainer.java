@@ -222,6 +222,10 @@ public class RobotContainer
 		// Toggle drive CAN Talon brake mode.
 		new JoystickButton(launchPad, LaunchPad.LaunchPadControlIDs.ROCKER_LEFT_BACK.value)
     		.whenPressed(new InstantCommand(driveBase::toggleCANTalonBrakeMode, driveBase));
+		
+		// Toggle camera feeds.
+		new JoystickButton(launchPad, LaunchPad.LaunchPadControlIDs.ROCKER_LEFT_FRONT.value)
+    		.whenPressed(new InstantCommand(cameraFeed::ChangeCamera));
 
 	}
 
