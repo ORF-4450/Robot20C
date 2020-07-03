@@ -57,11 +57,12 @@ public final class Constants
 	public static final DriverStation	ds = DriverStation.getInstance();
 
 	public static final double	TALON_RAMP_RATE = 0.5, DRIVE_WHEEL_DIAMETER = 6.125;
+	public static final double	COLORWHEEL_SPEED = .25;
+	public static final int		COLORWHEEL_ROTATIONS = 3;
 	
 	// LCD display line number constants showing class where the line is set.
 	public static final int		LCD_1 = 1;	// Robot, TestAutoCommand.
 	public static final int		LCD_2 = 2;	// DriveCommand.
 	public static final int		LCD_3 = 3;	// DriveCommand.
 	public static final int		LCD_7 = 7;	// DriveCommand
-	
 }

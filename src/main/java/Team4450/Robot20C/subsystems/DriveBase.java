@@ -153,6 +153,14 @@ public class DriveBase extends SubsystemBase
 	{
 		return talonBrakeMode;
 	}  
+	
+	/**
+	 * Toggles drive CAN Talon braking mode.
+	 */
+	public void toggleCANTalonBrakeMode()
+	{
+		SetCANTalonBrakeMode(!talonBrakeMode);
+	}
 	  
 	/**
 	 * Set CAN Talon voltage ramp rate.

@@ -21,13 +21,16 @@ import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SendableRegistry;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.ConditionalCommand;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 
-import Team4450.Robot20C.commands.DriveCommand;
-import Team4450.Robot20C.commands.PickupDeployCommand;
-import Team4450.Robot20C.commands.ShiftGearsCommand;
-import Team4450.Robot20C.commands.TestAutoCommand;
+import Team4450.Robot20C.commands.Drive;
+import Team4450.Robot20C.commands.PickupDeploy;
+import Team4450.Robot20C.commands.ShiftGears;
+import Team4450.Robot20C.commands.TestAuto;
+import Team4450.Robot20C.commands.TurnWheelCounting;
+import Team4450.Robot20C.commands.TurnWheelToColor;
 import Team4450.Robot20C.subsystems.Climber;
 import Team4450.Robot20C.subsystems.ColorWheel;
 import Team4450.Robot20C.subsystems.DriveBase;
@@ -140,7 +143,7 @@ public class RobotContainer
 		// every teleop period and so use the joy sticks to drive the robot. We pass in function
 		// references so the command can read the sticks directly as DoubleProviders.
 	  
-		driveBase.setDefaultCommand(new DriveCommand(driveBase, () -> leftStick.GetY(), () -> rightStick.GetY()));
+		driveBase.setDefaultCommand(new Drive(driveBase, () -> leftStick.GetY(), () -> rightStick.GetY()));
 
    		// Start the battery, compressor, PDP and camera feed monitoring Tasks.
 
@@ -185,19 +188,41 @@ public class RobotContainer
 	{
 		Util.consoleLog();
 	  
-		// Left stick buttons.
+		// ------- Left stick buttons --------------
+		
 		new JoystickButton(leftStick.getJoyStick(), JoyStick.JoyStickButtonIDs.TRIGGER.value)
-        	.whenPressed(new ShiftGearsCommand(driveBase));
+        	.whenPressed(new ShiftGears(driveBase));
 	  
-		// Right stick buttons.
+		// ------- Right stick buttons -------------
 		
-		// Utility stick buttons.
+		// -------- Utility stick buttons ----------
+		
+		// Toggle extend Pickup.
 		new JoystickButton(utilityStick.getJoyStick(), JoyStick.JoyStickButtonIDs.TOP_BACK.value)
-        	.whenPressed(new PickupDeployCommand(pickup));
+        	.whenPressed(new PickupDeploy(pickup));
 		
-		// Launch pad buttons.
+		// -------- Launch pad buttons -------------
+		
+		// Reset encoders.
 		new JoystickButton(launchPad, LaunchPad.LaunchPadControlIDs.BUTTON_RED.value)
-    	.whenPressed(new InstantCommand(driveBase::resetEncoders, driveBase));
+    		.whenPressed(new InstantCommand(driveBase::resetEncoders, driveBase));
+		
+		// Toggle color wheel motor on/off.
+		new JoystickButton(launchPad, LaunchPad.LaunchPadControlIDs.BUTTON_BLUE.value)
+    		.whenPressed(new InstantCommand(colorWheel::toggleWheel, colorWheel));
+		
+		// Start command to turn color wheel specified number of turns.
+		new JoystickButton(launchPad, LaunchPad.LaunchPadControlIDs.BUTTON_BLUE_RIGHT.value)
+    		.whenPressed(new TurnWheelCounting(colorWheel));
+		
+		// Start command to turn color wheel to target color sent by FMS.
+		new JoystickButton(launchPad, LaunchPad.LaunchPadControlIDs.BUTTON_YELLOW.value)
+    		.whenPressed(new TurnWheelToColor(colorWheel));
+		
+		// Toggle drive CAN Talon brake mode.
+		new JoystickButton(launchPad, LaunchPad.LaunchPadControlIDs.ROCKER_LEFT_BACK.value)
+    		.whenPressed(new InstantCommand(driveBase::toggleCANTalonBrakeMode, driveBase));
+
 	}
 
 	/**
@@ -226,7 +251,7 @@ public class RobotContainer
 				break;
 				
 			case TestAuto:
-				autoCommand = new TestAutoCommand(driveBase);
+				autoCommand = new TestAuto(driveBase);
 				break;
 		}
 

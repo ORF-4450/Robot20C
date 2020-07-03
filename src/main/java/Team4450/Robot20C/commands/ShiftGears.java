@@ -7,16 +7,16 @@ import edu.wpi.first.wpilibj2.command.CommandBase;
 /**
  * Command that toggles gear selection on the DriveBase.
  */
-public class ShiftGearsCommand extends CommandBase 
+public class ShiftGears extends CommandBase 
 {
   private final DriveBase driveBase;
 
   /**
-   * Creates a new ShiftGearsCommand.
+   * Creates a new ShiftGears command.
    *
    * @param subsystem The subsystem used by this command.
    */
-  public ShiftGearsCommand(DriveBase subsystem) 
+  public ShiftGears(DriveBase subsystem) 
   {
 	  Util.consoleLog();
 	  
@@ -39,7 +39,7 @@ public class ShiftGearsCommand extends CommandBase
 	  else
 		  driveBase.lowSpeed();
   }
-
+  
   /** 
    * Returns true when the command should end. This means one execution\
    * accomplished in initialize function.

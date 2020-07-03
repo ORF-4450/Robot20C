@@ -43,6 +43,12 @@ public class Pickup extends SubsystemBase
 		
 		Util.consoleLog("Pickup created!");
 	}
+	
+	@Override
+	public void periodic() 
+	{
+		// This method will be called once per scheduler run
+	}
 
 	protected void updateDS()
 	{

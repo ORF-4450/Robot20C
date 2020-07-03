@@ -8,15 +8,15 @@ import edu.wpi.first.wpilibj2.command.CommandBase;
 /**
  * Command that manually toggles Pickup operation.
  */
-public class PickupDeployCommand extends CommandBase 
+public class PickupDeploy extends CommandBase 
 {
   private final Pickup pickup;
 
   /**
-   * Creates a new PickupCommand.
+   * Creates a new PickupDeploy command.
    * @param subsystem The subsystem used by this command.
    */
-  public PickupDeployCommand(Pickup subsystem) 
+  public PickupDeploy(Pickup subsystem) 
   {
 	  Util.consoleLog();
 	  

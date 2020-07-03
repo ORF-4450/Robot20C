@@ -6,9 +6,10 @@ import Team4450.Lib.Util;
 import Team4450.Lib.ValveDA;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.Encoder;
+import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj.CounterBase.EncodingType;
 
-public class Climber
+public class Climber extends SubsystemBase
 {
 	private ValveDA			climberBrake = new ValveDA(CLIMBER_BRAKE_VALVE);
 	private DigitalInput	winchSwitch = new DigitalInput(WINCH_SWITCH);
@@ -22,6 +23,12 @@ public class Climber
 		Util.consoleLog();
 		
 		Util.consoleLog("Climber created!");
+	}
+	
+	@Override
+	public void periodic() 
+	{
+		// This method will be called once per scheduler run
 	}
 
 }

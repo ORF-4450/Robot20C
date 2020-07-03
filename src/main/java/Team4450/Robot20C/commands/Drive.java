@@ -1,5 +1,4 @@
 
-
 package Team4450.Robot20C.commands;
 
 import java.util.function.DoubleSupplier;
@@ -15,20 +14,20 @@ import edu.wpi.first.wpilibj2.command.CommandBase;
 /**
  * Driving command that feeds target speeds (% power) to the DriveBase.
  */
-public class DriveCommand extends CommandBase 
+public class Drive extends CommandBase 
 {
   private final DriveBase driveBase;
   
   private final DoubleSupplier	leftSpeed, rightSpeed;
 
   /**
-   * Creates a new DriveCommand.
+   * Creates a new Drive command.
    *
    * @param subsystem The subsystem used by this command.
    * @param leftSpeed The speed as % power -1.0 to +1.0.
    * @param rightSpeed The speed as % power -1.0 to +1.0.
    */
-  public DriveCommand(DriveBase subsystem, DoubleSupplier leftSpeed, DoubleSupplier rightSpeed) 
+  public Drive(DriveBase subsystem, DoubleSupplier leftSpeed, DoubleSupplier rightSpeed) 
   {
 	  Util.consoleLog();
 	  
