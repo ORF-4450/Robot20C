@@ -24,7 +24,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.ConditionalCommand;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
-
+import Team4450.Robot20C.commands.Climb;
 import Team4450.Robot20C.commands.Drive;
 import Team4450.Robot20C.commands.PickupDeploy;
 import Team4450.Robot20C.commands.ShiftGears;
@@ -123,8 +123,12 @@ public class RobotContainer
 		// Invert driving joy stick Y axis so + values mean forward.
 	  
 		leftStick.invertY(true);
-		rightStick.invertY(true);
+		rightStick.invertY(true);  
 		
+		// Invert utility stick so pulling back is + which means go up.
+		
+		utilityStick.invertX(true);
+
 		utilityStick.deadZoneY(.25);
 		utilityStick.deadZoneX(.25);
 
@@ -144,6 +148,10 @@ public class RobotContainer
 		// references so the command can read the sticks directly as DoubleProviders.
 	  
 		driveBase.setDefaultCommand(new Drive(driveBase, () -> leftStick.GetY(), () -> rightStick.GetY()));
+		
+		// Set the default climb command.
+		
+		//climber.setDefaultCommand(new Climb(climber, () -> utilityStick.GetY()));
 
    		// Start the battery, compressor, PDP and camera feed monitoring Tasks.
 
