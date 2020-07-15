@@ -2,14 +2,18 @@ package Team4450.Robot20C.subsystems;
 
 import static Team4450.Robot20C.Constants.*;
 
+import java.util.function.DoubleSupplier;
+
 import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.can.WPI_VictorSPX;
 
 import Team4450.Lib.Util;
 import Team4450.Lib.ValveDA;
+import Team4450.Robot20C.commands.Traverse;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.Encoder;
 import edu.wpi.first.wpilibj.SpeedControllerGroup;
+import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj.CounterBase.EncodingType;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -20,6 +24,8 @@ public class Climber extends SubsystemBase
 	private WPI_VictorSPX			winchFrontVictor, winchBackVictor, hookVictor;
 
 	private SpeedControllerGroup	winchDrive;
+	
+	private Traverse				traverseCommand;
 
 	private ValveDA			climberBrake = new ValveDA(CLIMBER_BRAKE_VALVE);
 	private DigitalInput	winchSwitch = new DigitalInput(WINCH_SWITCH);
@@ -30,7 +36,7 @@ public class Climber extends SubsystemBase
 
 	private boolean			brakeEngaged;
 	
-	public Climber()
+	public Climber(DoubleSupplier traversePower)
 	{
 		Util.consoleLog();
 		
@@ -45,6 +51,8 @@ public class Climber extends SubsystemBase
 	    hookVictor.setNeutralMode(NeutralMode.Brake);
 
 	    winchDrive = new SpeedControllerGroup(winchFrontVictor, winchBackVictor);
+	    
+	    traverseCommand = new Traverse(this, traversePower);
 
 		winchEncoder.reset();
 		
@@ -84,11 +92,23 @@ public class Climber extends SubsystemBase
 	 */
 	public void stop()
 	{
+		Util.consoleLog();
+		
 		winchDrive.stopMotor();
+		hookVictor.stopMotor();
 	}
 	
 	/**
-	 * Engage the climber brake.
+	 * Set power level for climber traverse motors.
+	 * @param power -1 to +1, + is left when robot viewed from behind.
+	 */
+	public void setTraversePower(double power)
+	{
+		hookVictor.set(power);
+	}
+	
+	/**
+	 * Engage the climber brake and start traverse mode.
 	 */
 	public void engageBrake()
 	{
@@ -98,15 +118,23 @@ public class Climber extends SubsystemBase
 		
 		brakeEngaged = true;
 		
+		// Schedule traverse command which preempts the climb command.
+		
+		CommandScheduler.getInstance().schedule(traverseCommand);
+		
 		updateDS();
 	}
 	
 	/**
-	 * Release the climber brake.
+	 * Release the climber brake and end traverse mode.
 	 */
 	public void releaseBrake()
 	{
 		Util.consoleLog();
+		
+		// End traverse command and climb command resumes.
+		
+		traverseCommand.stop();
 		
 		climberBrake.SetB();
 		
@@ -123,8 +151,21 @@ public class Climber extends SubsystemBase
 	{
 		return brakeEngaged;
 	}
+	
+	/**
+	 * Toggle state of climber brake.
+	 */
+	public void toggleBrake()
+	{
+		Util.consoleLog();
+		
+		if (brakeEngaged)
+			releaseBrake();
+		else
+			engageBrake();
+	}
 
-	protected void updateDS()
+	private void updateDS()
 	{
 		Util.consoleLog();
 

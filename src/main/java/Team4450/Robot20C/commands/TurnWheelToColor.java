@@ -69,7 +69,7 @@ public class TurnWheelToColor extends CommandBase
   {
 	  // Stop when target color is detected by our sensor.
 
-	  return colorWheel.colorMatch();
+	  return colorWheel.isRunning() ? colorWheel.colorMatch(): true;
   }
 }
 

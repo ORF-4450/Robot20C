@@ -3,14 +3,8 @@ package Team4450.Robot20C;
 
 import java.util.Properties;
 
-import Team4450.Lib.CameraFeed;
 import Team4450.Lib.NavX;
-import Team4450.Lib.ValveDA;
-import edu.wpi.first.wpilibj.AnalogInput;
-import edu.wpi.first.wpilibj.Compressor;
-import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.PowerDistributionPanel;
 
 /**
  * The Constants class provides a convenient place for teams to hold robot-wide numerical or boolean
@@ -22,7 +16,7 @@ import edu.wpi.first.wpilibj.PowerDistributionPanel;
  */
 public final class Constants
 {
-	public static String		PROGRAM_NAME = "RAC20C-07.02.20-1";
+	public static String		PROGRAM_NAME = "RAC20C-07.14.20-1";
 
 	public static Properties	robotProperties;
 	  
@@ -41,6 +35,8 @@ public final class Constants
 	
 	// Joystick port assignments.
 	public static final int		LEFT_STICK = 0, RIGHT_STICK = 1, UTILITY_STICK = 2, LAUNCH_PAD = 3;
+	
+	public static NavX			navx;
 
 	// Pneumatic valve controller port assignments.
 	public static final int		COMPRESSOR = 0;
@@ -59,6 +55,7 @@ public final class Constants
 	public static final double	TALON_RAMP_RATE = 0.5, DRIVE_WHEEL_DIAMETER = 6.125;
 	public static final double	COLORWHEEL_SPEED = .25;
 	public static final int		COLORWHEEL_ROTATIONS = 3;
+	public static final double	STEERING_ASSIST_GAIN = .05;
 	
 	// LCD display line number constants showing class where the line is set.
 	public static final int		LCD_1 = 1;	// Robot, TestAutoCommand.

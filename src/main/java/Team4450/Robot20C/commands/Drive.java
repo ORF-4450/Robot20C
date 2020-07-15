@@ -8,7 +8,7 @@ import Team4450.Lib.LCD;
 import Team4450.Lib.Util;
 import Team4450.Lib.SRXMagneticEncoderRelative.PIDRateType;
 import Team4450.Robot20C.subsystems.DriveBase;
-
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 
 /**
@@ -16,9 +16,11 @@ import edu.wpi.first.wpilibj2.command.CommandBase;
  */
 public class Drive extends CommandBase 
 {
-  private final DriveBase driveBase;
+  private final DriveBase 		driveBase;
   
   private final DoubleSupplier	leftSpeed, rightSpeed;
+  
+  private boolean				altDriveMode, steeringAssistMode;
 
   /**
    * Creates a new Drive command.
@@ -58,6 +60,8 @@ public class Drive extends CommandBase
 	  Util.consoleLog();
 	  
 	  driveBase.setMotorSafety(true); 	// Turn on watchdog.
+	  
+	  altDriveMode = steeringAssistMode = false;
   }
 
   /** 
@@ -69,7 +73,7 @@ public class Drive extends CommandBase
   @Override
   public void execute() 
   {
-	  double leftY = leftSpeed.getAsDouble(), rightY = rightSpeed.getAsDouble();
+	  double leftY = leftSpeed.getAsDouble(), rightY = rightSpeed.getAsDouble(), angle;
 	  
 	  LCD.printLine(LCD_2, "leftenc=%d  rightenc=%d", driveBase.leftEncoder.get(), driveBase.rightEncoder.get());			
 
@@ -80,9 +84,67 @@ public class Drive extends CommandBase
 			  driveBase.rightEncoder.getRPM(), driveBase.leftEncoder.getMaxVelocity(PIDRateType.velocityMPS),
 			  driveBase.rightEncoder.getMaxVelocity(PIDRateType.velocityMPS));
 
-	  driveBase.tankDrive(leftY, rightY);
+	  //driveBase.tankDrive(leftY, rightY, true);
+	  
+	  if (altDriveMode)
+	  {	  // normal tank with straight drive assist when sticks within 10% of each other and
+		  // right stick power is greater than 50%.
+		  if (isLeftRightEqual(leftY, rightY, 10) && Math.abs(rightY) > .50)
+		  {
+			  // Reset angle measurement when entering this code first time after mode is enabled.
+			  if (!steeringAssistMode) navx.resetYaw();
+		
+			  // Angle is negative if robot veering left, positive if veering right when going forward.
+			  // It is opposite when going backward.
+		
+			  angle = (int) navx.getYaw();
+		
+			  //LCD.printLine(5, "angle=%d", angle);
+		
+			  // Invert angle for backwards movement.
+		
+			  if (rightY < 0) angle = -angle;
+		
+			  //Util.consoleLog("angle=%d", angle);
+		
+			  // Note we invert sign on the angle because we want the robot to turn in the opposite
+			  // direction than it is currently going to correct it. So a + angle says robot is veering
+			  // right so we set the turn value to - because - is a turn left which corrects our right
+			  // drift.
+				
+			  driveBase.curvatureDrive(rightY, -angle * STEERING_ASSIST_GAIN, false);
+		
+			  steeringAssistMode = true;
+		  }
+		  else
+		  {
+			  steeringAssistMode = false;
+			  driveBase.tankDrive(leftY, rightY, true);	// Normal tank drive.
+		  }
+	
+		  SmartDashboard.putBoolean("SteeringAssist", steeringAssistMode);
+	  }
+	  else
+		  driveBase.tankDrive(leftY, rightY, true);		// Normal tank drive.
   }
 
+  private boolean isLeftRightEqual(double left, double right, double percent)
+  {
+	  if (Math.abs(left - right) <= (1 * (percent / 100))) return true;
+
+	  return false;
+  }
+  
+  /**
+   * Toggles alternate drive mode.
+   */
+  public void toggleAlternateDrivingMode()
+  {
+	  Util.consoleLog();
+	  
+	  altDriveMode = !altDriveMode;
+  }
+  
   /**
    *  Called once the command ends or is interrupted.
    */

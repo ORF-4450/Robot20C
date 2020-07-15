@@ -50,7 +50,7 @@ public class Pickup extends SubsystemBase
 		// This method will be called once per scheduler run
 	}
 
-	protected void updateDS()
+	private void updateDS()
 	{
 		Util.consoleLog();
 

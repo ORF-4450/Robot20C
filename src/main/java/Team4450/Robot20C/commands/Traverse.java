@@ -8,22 +8,24 @@ import Team4450.Robot20C.subsystems.Climber;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 
 /**
- * Climbing command that feeds % power to the Climber winch.
+ * Command that feeds % power to the Climber traverse motor.
  */
-public class Climb extends CommandBase 
+public class Traverse extends CommandBase 
 {
-  private final Climber climber;
+  private final Climber 		climber;
+    
+  private final DoubleSupplier	traversePower;
   
-  private final DoubleSupplier	climbPower;
+  private boolean				endTraverse;
 
   /**
-   * Creates a new Climb command.
+   * Creates a new Traverse command.
    *
    * @param subsystem The subsystem used by this command.
-   * @param climbPower A double supplier of the speed of climb
+   * @param traversePower A double supplier of the speed of traverse
    * as % power -1.0 to +1.0.
    */
-  public Climb(Climber subsystem, DoubleSupplier climbPower) 
+  public Traverse(Climber subsystem, DoubleSupplier traversePower) 
   {
 	  Util.consoleLog();
 	  
@@ -33,7 +35,7 @@ public class Climb extends CommandBase
 	  
 	  addRequirements(this.climber);
 	  
-	  this.climbPower = climbPower;
+	  this.traversePower = traversePower;
   }
 
   /**
@@ -51,20 +53,21 @@ public class Climb extends CommandBase
   public void initialize() 
   {
 	  Util.consoleLog();
+	  
+	  endTraverse = false;
   }
 
   /** 
    * Called every time the scheduler runs while the command is scheduled. Passes
-   * the climb power value provided by whatever double provider was passed
-   * in the constructor to the climber setWinchPower() function. The provider is
-   * typically the utility stick Y deflection value but can be any double provider.
+   * the traverse power value provided by whatever double provider was passed
+   * in the constructor to the climber setTraversePower() function. The provider is
+   * typically the utility stick X deflection value but can be any double provider.
    */
   @Override
   public void execute() 
   {
 	  // Squaring tones down the responsiveness of the winch.
-	  
-	  climber.setWinchPower(Util.squareInput(climbPower.getAsDouble()));
+	  climber.setTraversePower(Util.squareInput(traversePower.getAsDouble()));
   }
 
   /**
@@ -84,6 +87,17 @@ public class Climb extends CommandBase
   @Override
   public boolean isFinished() 
   {
-	  return false;
+	  return endTraverse;
+  }
+  
+  /**
+   * End Climber traverse mode.
+   */
+  public void stop()
+  {
+	  Util.consoleLog();
+	  
+	  endTraverse = true;
   }
 }
+

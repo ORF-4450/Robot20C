@@ -91,7 +91,7 @@ public class TurnWheelCounting extends CommandBase
   {
 	  // Count 2x color changes since each color appears twice on wheel.
 
-	  return turnCount > COLORWHEEL_ROTATIONS * 2;
+	  return colorWheel.isRunning() ? turnCount > COLORWHEEL_ROTATIONS * 2 : true;
   }
 }
 

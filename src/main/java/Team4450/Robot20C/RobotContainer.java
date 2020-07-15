@@ -5,7 +5,6 @@ import static Team4450.Robot20C.Constants.*;
 
 import Team4450.Lib.CameraFeed;
 import Team4450.Lib.JoyStick;
-import Team4450.Lib.LCD;
 import Team4450.Lib.LaunchPad;
 import Team4450.Lib.MonitorBattery;
 import Team4450.Lib.MonitorCompressor;
@@ -21,7 +20,6 @@ import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SendableRegistry;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.ConditionalCommand;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import Team4450.Robot20C.commands.Climb;
@@ -48,15 +46,16 @@ public class RobotContainer
 	private final Pickup		pickup;
 	private final ColorWheel	colorWheel;
 	private final Climber		climber;
+	private final Drive			driveCommand;
 
 	// Joy sticks. 3 Joy sticks use RobotLib JoyStick class for some of its extra features. 
 	// Specify trigger for monitoring to cause JoyStick event monitoring to not start. We will 
 	// use WpiLib button handling instead of RobotLib event monitoring.
-	// Launch pad monitoring uses wpilib Joystick class.
+	// Launch pad monitoring uses regular wpilib Joystick class.
 	
 	private JoyStick	leftStick = new JoyStick(new Joystick(LEFT_STICK), "Left Stick", JoyStickButtonIDs.TRIGGER);
 	private JoyStick	rightStick = new JoyStick(new Joystick(RIGHT_STICK), "Right  Stick", JoyStickButtonIDs.TRIGGER);
-	private JoyStick	utilityStick = new JoyStick(new Joystick(UTILITY_STICK), "Utility Stick", JoyStickButtonIDs.TRIGGER);
+	public JoyStick		utilityStick = new JoyStick(new Joystick(UTILITY_STICK), "Utility Stick", JoyStickButtonIDs.TRIGGER);
 	private Joystick	launchPad = new Joystick(LAUNCH_PAD);	//new LaunchPad(new Joystick(LAUNCH_PAD));
 
 	private AnalogInput	pressureSensor = new AnalogInput(PRESSURE_SENSOR);
@@ -65,7 +64,7 @@ public class RobotContainer
 
 	private Compressor	compressor = new Compressor(COMPRESSOR);	// Compressor class represents the PCM.
 
-	private NavX		navx;
+	//private NavX		navx;
 
 	private Thread      		monitorBatteryThread, monitorPDPThread;
 	private MonitorCompressor	monitorCompressorThread;
@@ -137,21 +136,17 @@ public class RobotContainer
 		driveBase = new DriveBase();
 		pickup = new Pickup();
 		colorWheel = new ColorWheel();
-		climber = new Climber();
-
-		// Configure the button bindings
-		
-		configureButtonBindings();
+		climber = new Climber(() -> utilityStick.GetX());
 	  
 		// Set the default drive command. This command will be scheduled automatically to run
 		// every teleop period and so use the joy sticks to drive the robot. We pass in function
 		// references so the command can read the sticks directly as DoubleProviders.
 	  
-		driveBase.setDefaultCommand(new Drive(driveBase, () -> leftStick.GetY(), () -> rightStick.GetY()));
+		driveBase.setDefaultCommand(driveCommand = new Drive(driveBase, () -> leftStick.GetY(), () -> rightStick.GetY()));
 		
-		// Set the default climb command.
+		// Set the default climber control command.
 		
-		//climber.setDefaultCommand(new Climb(climber, () -> utilityStick.GetY()));
+		climber.setDefaultCommand(new Climb(climber, () -> utilityStick.GetY()));
 
    		// Start the battery, compressor, PDP and camera feed monitoring Tasks.
 
@@ -184,6 +179,10 @@ public class RobotContainer
 		}
 		
 		setAutoChoices();
+
+		// Configure the button bindings
+		
+		configureButtonBindings();
 	}
 
 	/**
@@ -198,11 +197,16 @@ public class RobotContainer
 	  
 		// ------- Left stick buttons --------------
 		
+		// Shift gears.
 		new JoystickButton(leftStick.getJoyStick(), JoyStick.JoyStickButtonIDs.TRIGGER.value)
         	.whenPressed(new ShiftGears(driveBase));
-	  
+  
 		// ------- Right stick buttons -------------
-		
+
+		// Toggle alternate driving mode.
+		new JoystickButton(rightStick.getJoyStick(), JoyStick.JoyStickButtonIDs.TRIGGER.value)
+    	.whenPressed(new InstantCommand(driveCommand::toggleAlternateDrivingMode, driveBase));
+  
 		// -------- Utility stick buttons ----------
 		
 		// Toggle extend Pickup.
@@ -211,30 +215,44 @@ public class RobotContainer
 		
 		// -------- Launch pad buttons -------------
 		
+		// Because the launch pad buttons are wired backwards, we use whenReleased to 
+		// react on button press instead of whenPressed.
+		
 		// Reset encoders.
 		new JoystickButton(launchPad, LaunchPad.LaunchPadControlIDs.BUTTON_RED.value)
-    		.whenPressed(new InstantCommand(driveBase::resetEncoders, driveBase));
+    		.whenReleased(new InstantCommand(driveBase::resetEncoders, driveBase));
 		
-		// Toggle color wheel motor on/off.
+		// Toggle color wheel motor on/off. Also stops the count and to color commands.
 		new JoystickButton(launchPad, LaunchPad.LaunchPadControlIDs.BUTTON_BLUE.value)
-    		.whenPressed(new InstantCommand(colorWheel::toggleWheel, colorWheel));
+    		.whenReleased(new InstantCommand(colorWheel::toggleWheel, colorWheel));
 		
 		// Start command to turn color wheel specified number of turns.
 		new JoystickButton(launchPad, LaunchPad.LaunchPadControlIDs.BUTTON_BLUE_RIGHT.value)
-    		.whenPressed(new TurnWheelCounting(colorWheel));
-		
+    		.whenReleased(new TurnWheelCounting(colorWheel));
+	
 		// Start command to turn color wheel to target color sent by FMS.
 		new JoystickButton(launchPad, LaunchPad.LaunchPadControlIDs.BUTTON_YELLOW.value)
-    		.whenPressed(new TurnWheelToColor(colorWheel));
+    		.whenReleased(new TurnWheelToColor(colorWheel));
 		
-		// Toggle drive CAN Talon brake mode.
+		// Toggle climber brake.
+		new JoystickButton(launchPad, LaunchPad.LaunchPadControlIDs.BUTTON_RED_RIGHT.value)
+			.whenReleased(new InstantCommand(climber::toggleBrake, climber));
+	
+		// Toggle drive CAN Talon brake mode. We need to capture both sides of the rocker switch
+		// to get a toggle on either position of the rocker.
 		new JoystickButton(launchPad, LaunchPad.LaunchPadControlIDs.ROCKER_LEFT_BACK.value)
-    		.whenPressed(new InstantCommand(driveBase::toggleCANTalonBrakeMode, driveBase));
+			.whenPressed(new InstantCommand(driveBase::toggleCANTalonBrakeMode, driveBase));
+	
+		new JoystickButton(launchPad, LaunchPad.LaunchPadControlIDs.ROCKER_LEFT_BACK.value)
+    		.whenReleased(new InstantCommand(driveBase::toggleCANTalonBrakeMode, driveBase));
 		
-		// Toggle camera feeds.
+		// Toggle camera feeds. We need to capture both sides of the rocker switch to get a toggle
+		// on either position of the rocker.
 		new JoystickButton(launchPad, LaunchPad.LaunchPadControlIDs.ROCKER_LEFT_FRONT.value)
     		.whenPressed(new InstantCommand(cameraFeed::ChangeCamera));
 
+		new JoystickButton(launchPad, LaunchPad.LaunchPadControlIDs.ROCKER_LEFT_FRONT.value)
+	    	.whenReleased(new InstantCommand(cameraFeed::ChangeCamera));
 	}
 
 	/**

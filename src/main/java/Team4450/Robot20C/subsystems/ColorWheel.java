@@ -38,7 +38,7 @@ public class ColorWheel extends SubsystemBase
 	{
 	}
 
-	protected void updateDS()
+	private void updateDS()
 	{
 		Util.consoleLog();
 

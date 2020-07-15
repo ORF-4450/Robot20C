@@ -81,7 +81,9 @@ public class DriveBase extends SubsystemBase
    		robotDrive.setSafetyEnabled(false);
    		robotDrive.setExpiration(0.1);
 	
-		// Always start in low gear.
+		// Always start in low gear with brakes enabled.
+   		
+   		SetCANTalonBrakeMode(true);
 		
 		lowSpeed();
 	}
@@ -106,10 +108,22 @@ public class DriveBase extends SubsystemBase
 	 * Tank drive function. Passes left/right speed values to the robot drive.
 	 * @param leftSpeed Left power setting -1.0 to +1.0.
 	 * @param rightSpeed RIght power setting -1.0 to +1.0.
+	 * @param squaredInputs True reduces sensitivity at low speeds.
 	 */
-	public void tankDrive(double leftSpeed, double rightSpeed)
+	public void tankDrive(double leftSpeed, double rightSpeed, boolean squaredInputs)
 	{
-		robotDrive.tankDrive(leftSpeed, rightSpeed);
+		robotDrive.tankDrive(leftSpeed, rightSpeed, squaredInputs);
+	}
+	
+	/**
+	 * Curvature drive function. Drives at set speed with set curve.
+	 * @param speed Power setting -1.0 to +1.0.
+	 * @param curve Rotation rate -1.0 to +1.0. Clockwise us +.
+	 * @param quickTurn True causes quick turn (turn in place).
+	 */
+	public void curvatureDrive(double speed, double curve, boolean quickTurn)
+	{
+		robotDrive.curvatureDrive(speed, curve, quickTurn);
 	}
 
 	// Initialize and Log status indication from CANTalon. If we see an exception
@@ -189,7 +203,7 @@ public class DriveBase extends SubsystemBase
 				  );
 	}
 		
-	protected void updateDS()
+	private void updateDS()
 	{
 		Util.consoleLog("low=%b, high=%b", lowSpeed, highSpeed);
 			
@@ -282,6 +296,8 @@ public class DriveBase extends SubsystemBase
 	 */
 	public void setMotorSafety(boolean enabled)
 	{
+		Util.consoleLog("%s", enabled);
+		
 		robotDrive.setSafetyEnabled(enabled);
 	}
 }
