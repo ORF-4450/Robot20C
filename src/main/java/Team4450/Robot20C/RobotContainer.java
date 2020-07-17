@@ -205,7 +205,7 @@ public class RobotContainer
 
 		// Toggle alternate driving mode.
 		new JoystickButton(rightStick.getJoyStick(), JoyStick.JoyStickButtonIDs.TRIGGER.value)
-    	.whenPressed(new InstantCommand(driveCommand::toggleAlternateDrivingMode, driveBase));
+    	.whenPressed(new InstantCommand(driveCommand::toggleAlternateDrivingMode));
   
 		// -------- Utility stick buttons ----------
 		
@@ -220,9 +220,10 @@ public class RobotContainer
 		
 		// Reset encoders.
 		new JoystickButton(launchPad, LaunchPad.LaunchPadControlIDs.BUTTON_RED.value)
-    		.whenReleased(new InstantCommand(driveBase::resetEncoders, driveBase));
+    		.whenReleased(new InstantCommand(driveBase::resetEncoders));
 		
-		// Toggle color wheel motor on/off. Also stops the count and to color commands.
+		// Toggle color wheel motor on/off. Also stops the count and to-color commands but
+		// you have to click twice to stop those commands.
 		new JoystickButton(launchPad, LaunchPad.LaunchPadControlIDs.BUTTON_BLUE.value)
     		.whenReleased(new InstantCommand(colorWheel::toggleWheel, colorWheel));
 		
@@ -234,17 +235,22 @@ public class RobotContainer
 		new JoystickButton(launchPad, LaunchPad.LaunchPadControlIDs.BUTTON_YELLOW.value)
     		.whenReleased(new TurnWheelToColor(colorWheel));
 		
-		// Toggle climber brake.
+		// Toggle climber brake. Note we don't supply climber as subsystem on this command
+		// to get around a quirk in how the scheduler works...because on the toggle brake
+		// function we will schedule the Traverse command and we want traverse to suspend
+		// the climb command while traverse is active. Specifying a subsystem here fools the
+		// scheduler and it runs Traverse and Climb commands at the same time, which is not
+		// what we want (no climb while brake engaged!).
 		new JoystickButton(launchPad, LaunchPad.LaunchPadControlIDs.BUTTON_RED_RIGHT.value)
-			.whenReleased(new InstantCommand(climber::toggleBrake, climber));
+			.whenReleased(new InstantCommand(climber::toggleBrake));
 	
 		// Toggle drive CAN Talon brake mode. We need to capture both sides of the rocker switch
 		// to get a toggle on either position of the rocker.
 		new JoystickButton(launchPad, LaunchPad.LaunchPadControlIDs.ROCKER_LEFT_BACK.value)
-			.whenPressed(new InstantCommand(driveBase::toggleCANTalonBrakeMode, driveBase));
+			.whenPressed(new InstantCommand(driveBase::toggleCANTalonBrakeMode));
 	
 		new JoystickButton(launchPad, LaunchPad.LaunchPadControlIDs.ROCKER_LEFT_BACK.value)
-    		.whenReleased(new InstantCommand(driveBase::toggleCANTalonBrakeMode, driveBase));
+    		.whenReleased(new InstantCommand(driveBase::toggleCANTalonBrakeMode));
 		
 		// Toggle camera feeds. We need to capture both sides of the rocker switch to get a toggle
 		// on either position of the rocker.

@@ -16,7 +16,7 @@ import edu.wpi.first.wpilibj.DriverStation;
  */
 public final class Constants
 {
-	public static String		PROGRAM_NAME = "RAC20C-07.14.20-1";
+	public static String		PROGRAM_NAME = "RAC20C-07.17.20-1";
 
 	public static Properties	robotProperties;
 	  
@@ -44,7 +44,7 @@ public final class Constants
 	public static final int		PICKUP_VALVE = 2; 			// 2-3
 	public static final int		CLIMBER_BRAKE_VALVE = 4;	// 4-5
 
-	// Digital Input port assignments.
+	// Digital Input port assignments. Encoder takes 2 ports.
 	public static final int		WINCH_SWITCH = 0, WINCH_ENCODER = 1, BALL_EYE = 3;
 	  
 	// Analog Input port assignments.

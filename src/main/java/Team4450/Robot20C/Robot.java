@@ -98,6 +98,10 @@ public class Robot extends TimedRobot
 	  // and running subsystem periodic() methods. This must be called from the robot's periodic
 	  // function in order for anything in the Command-based framework to work.
 	  
+	  // WARNING: This function is called repeatedly even when robot is DISABLED. This means the
+	  // periodic method in all subsystems will be called even when disabled. The scheduler will
+	  // stop commands when disabled but not subsystem.
+
 	  CommandScheduler.getInstance().run();
   }
 
@@ -130,6 +134,7 @@ public class Robot extends TimedRobot
 	  SmartDashboard.putBoolean("Belt", false);
 	  SmartDashboard.putString("GameColor", "");
 
+	  Util.consoleLog("-------------------------------------------------------------------------");
   }
 
   /**

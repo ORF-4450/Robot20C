@@ -44,15 +44,16 @@ public class Drive extends CommandBase
   }
 
   /**
-   *  Called when the command is initially scheduled.
+   *  Called when the command is scheduled to run.
    *  NOTE: This command is set as the default for the drive base. That
    *  means it runs as long as no other command that uses the drive base
    *  runs. If another command runs, like shift gears for instance, this
    *  command will be interrupted and then rescheduled when shift gears
    *  is finished. That reschedule means initialize() is called again.
-   *  So it is important to realize this command does not "exist" for
-   *  the entire run of teleop. It comes and goes when it is preempted
-   *  by another command. All commands work like this.
+   *  So it is important to realize that while this command class exists for
+   *  the entire run of teleop, it stops when it is preempted by another
+   *  command and then when rescheduled initialize will be called again and
+   *  then execute resumes being repeatedly called. All commands work like this.
    */
   @Override
   public void initialize() 
@@ -60,8 +61,6 @@ public class Drive extends CommandBase
 	  Util.consoleLog();
 	  
 	  driveBase.setMotorSafety(true); 	// Turn on watchdog.
-	  
-	  altDriveMode = steeringAssistMode = false;
   }
 
   /** 
@@ -140,9 +139,13 @@ public class Drive extends CommandBase
    */
   public void toggleAlternateDrivingMode()
   {
-	  Util.consoleLog();
+	  Util.consoleLog("%b", altDriveMode);
 	  
 	  altDriveMode = !altDriveMode;
+	  
+	  steeringAssistMode = false;
+	  
+	  SmartDashboard.putBoolean("AltDriveMode", altDriveMode);
   }
   
   /**
