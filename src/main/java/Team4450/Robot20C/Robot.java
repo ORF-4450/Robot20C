@@ -7,6 +7,8 @@ import Team4450.Robot20C.subsystems.ColorWheel;
 import static Team4450.Robot20C.Constants.*;
 
 import edu.wpi.first.wpilibj.TimedRobot;
+import edu.wpi.first.wpilibj.Watchdog;
+import edu.wpi.first.wpilibj.livewindow.LiveWindow;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
@@ -51,7 +53,9 @@ public class Robot extends TimedRobot
 		  Util.consoleLog(PROGRAM_NAME);
 		
 		  Util.consoleLog("RobotLib=%s", LibraryVersion.version);
-		
+		  
+		  LiveWindow.setEnabled(false);
+		  
 		  // Create SendableVersion object so it can be sent to the dashboard and also
 		  // log some of it's information.
 			
@@ -101,7 +105,7 @@ public class Robot extends TimedRobot
 	  
 	  // WARNING: This function is called repeatedly even when robot is DISABLED. This means the
 	  // periodic method in all subsystems will be called even when disabled. The scheduler will
-	  // stop commands when disabled but not subsystem.
+	  // stop commands when disabled but not subsystems.
 
 	  CommandScheduler.getInstance().run();
   }

@@ -97,11 +97,9 @@ public class Pickup extends SubsystemBase
 	{
 		Util.consoleLog();
 		
-		pickupTalon.set(0);	//.stopMotor();
-		Util.consoleLog();
+		pickupTalon.stopMotor();
 	
 		pickupRunning = false;
-		Util.consoleLog();
 		
 		ballEye.disableInterrupts();
 	
