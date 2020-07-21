@@ -2,6 +2,7 @@
 package Team4450.Robot20C;
 
 import Team4450.Lib.*;
+
 import Team4450.Robot20C.subsystems.ColorWheel;
 import static Team4450.Robot20C.Constants.*;
 
@@ -162,6 +163,8 @@ public class Robot extends TimedRobot
 	  
 	  robotContainer.getMatchInformation();
 	  
+	  robotContainer.resetFaults();
+
 	  // RobotContainer figures out which auto command is selected to run.
 	  
 	  Command autonomousCommand = robotContainer.getAutonomousCommand();
@@ -196,13 +199,17 @@ public class Robot extends TimedRobot
 	  SmartDashboard.putBoolean("Disabled", false);
 	  SmartDashboard.putBoolean("Teleop Mode", true);
 	  
+	  robotContainer.resetFaults();
+	  
 	  // Driving handled by DriveCommand which is default command for the DriveBase.
 	  // Other commands scheduled by joystick buttons.
   }
 
   /**
    * This function is called periodically during teleop.
-   * Technically there should be nothing here.
+   * Technically there should be nothing here. 2020 game has color wheel
+   * target color that can be sent by FMS at any time so we monitor for
+   * it here.
    */
   @Override
   public void teleopPeriodic() 

@@ -107,8 +107,7 @@ public class RobotContainer
 
 		// Reset PDB & PCM sticky faults.
     
-		pdp.clearStickyFaults();
-		compressor.clearAllPCMStickyFaults();
+		resetFaults();
 
 		// Create NavX object here since must done before CameraFeed is created (don't remember why).
 		// Navx calibrates at power on and must complete before robot moves. Takes 12 seconds.
@@ -328,4 +327,17 @@ public class RobotContainer
 		SmartDashboard.putData(autoChooser);
 	}
 
+	/**
+	 * Reset sticky faults in PDP and PCM and turn compressor on/off as
+	 * set by switch on DS.
+	 */
+	public void resetFaults()
+	{
+		// This code turns off the automatic compressor management if requested by DS. Putting this
+		// in this function is a convenience since it is called at each mode change.
+		compressor.setClosedLoopControl(SmartDashboard.getBoolean("CompressorEnabled", true));
+
+		pdp.clearStickyFaults();
+		compressor.clearAllPCMStickyFaults();
+	}
 }

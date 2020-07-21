@@ -37,7 +37,7 @@ public class Pickup extends SubsystemBase
 		
 		// Listen for a falling edge interrupt.
 		
-		ballEye.setUpSourceEdge(false, true);
+		ballEye.setUpSourceEdge(true, false);
 
 		retract();
 		
@@ -67,21 +67,17 @@ public class Pickup extends SubsystemBase
 		extended = true;
 		
 		start(.50);
-		
-		updateDS();
 	}
 	
 	public void retract()
 	{
 		Util.consoleLog();
 		
-		stop();
-
 		pickupValve.SetB();
 		
 		extended = false;
 		
-		updateDS();
+		stop();
 	}
 	
 	public void start(double power)
@@ -101,9 +97,11 @@ public class Pickup extends SubsystemBase
 	{
 		Util.consoleLog();
 		
-		pickupTalon.stopMotor();
+		pickupTalon.set(0);	//.stopMotor();
+		Util.consoleLog();
 	
 		pickupRunning = false;
+		Util.consoleLog();
 		
 		ballEye.disableInterrupts();
 	
