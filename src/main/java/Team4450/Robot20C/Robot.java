@@ -7,7 +7,6 @@ import Team4450.Robot20C.subsystems.ColorWheel;
 import static Team4450.Robot20C.Constants.*;
 
 import edu.wpi.first.wpilibj.TimedRobot;
-import edu.wpi.first.wpilibj.Watchdog;
 import edu.wpi.first.wpilibj.livewindow.LiveWindow;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -22,7 +21,7 @@ import edu.wpi.first.wpilibj2.command.CommandScheduler;
 public class Robot extends TimedRobot 
 {
   private RobotContainer	robotContainer;
-
+  
   /**
    * This function is run when the robot is first started up and should be used for any
    * initialization code.
@@ -54,6 +53,7 @@ public class Robot extends TimedRobot
 		
 		  Util.consoleLog("RobotLib=%s", LibraryVersion.version);
 		  
+		  // This is a test to see if we can eliminate LW overhead when not using it.
 		  LiveWindow.setEnabled(false);
 		  
 		  // Create SendableVersion object so it can be sent to the dashboard and also

@@ -4,6 +4,7 @@ package Team4450.Robot20C.commands;
 import java.util.function.DoubleSupplier;
 
 import static Team4450.Robot20C.Constants.*;
+import static Team4450.Robot20C.RobotContainer.*;
 import Team4450.Lib.LCD;
 import Team4450.Lib.Util;
 import Team4450.Lib.SRXMagneticEncoderRelative.PIDRateType;
@@ -38,6 +39,9 @@ public class Drive extends CommandBase
 	  // Use addRequirements() here to declare subsystem dependencies.
 	  
 	  addRequirements(this.driveBase);
+	  
+	  // Save references to DoubleSupplier objects so we can read them later in the
+	  // execute method.
 	  
 	  this.leftSpeed = leftSpeed;
 	  this.rightSpeed = rightSpeed;
@@ -82,8 +86,6 @@ public class Drive extends CommandBase
 	  LCD.printLine(LCD_7, "Lrpm=%d - Rrpm=%d  Lmax vel=%.3f - Rmax vel=%.3f", driveBase.leftEncoder.getRPM(),
 			  driveBase.rightEncoder.getRPM(), driveBase.leftEncoder.getMaxVelocity(PIDRateType.velocityMPS),
 			  driveBase.rightEncoder.getMaxVelocity(PIDRateType.velocityMPS));
-
-	  //driveBase.tankDrive(leftY, rightY, true);
 	  
 	  if (altDriveMode)
 	  {	  // normal tank with straight drive assist when sticks within 10% of each other and

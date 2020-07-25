@@ -58,6 +58,9 @@ public class Pickup extends SubsystemBase
 		SmartDashboard.putBoolean("PickupExtended", extended);
 	}
 	
+	/**
+	 * Extend the pickup arm and start the wheel motor.
+	 */
 	public void extend()
 	{
 		Util.consoleLog();
@@ -69,6 +72,9 @@ public class Pickup extends SubsystemBase
 		start(.50);
 	}
 	
+	/**
+	 * Retract the pickup arm and stop the wheel motor.
+	 */
 	public void retract()
 	{
 		Util.consoleLog();
@@ -79,7 +85,24 @@ public class Pickup extends SubsystemBase
 		
 		stop();
 	}
+	  
+	/**
+	 * Toggle between pickup arm extended and retracted.
+	 */
+	public void toggleDeploy()
+	{
+		Util.consoleLog("%b", isExtended());
+		
+		if (isExtended())
+			retract();
+		else
+		  	extend();
+	}
 	
+	/**
+	 * Start pick up wheel and enable optical sensor interrupts.
+	 * @param power % power to run wheel motor 0.0->1.0.
+	 */
 	public void start(double power)
 	{
 		Util.consoleLog("%.2f", power);
@@ -93,6 +116,9 @@ public class Pickup extends SubsystemBase
 		updateDS();
 	}
 
+	/**
+	 * Stop wheel motor and disable interrupts.
+	 */
 	public void stop()
 	{
 		Util.consoleLog();
@@ -101,16 +127,29 @@ public class Pickup extends SubsystemBase
 	
 		pickupRunning = false;
 		
+		// Note, the following function is expensive in terms of the
+		// time it takes and will trigger the global watchdog warning
+		// and the drivebase motor safety will trigger if set below 1
+		// second. No idea why this would be the case.
+		
 		ballEye.disableInterrupts();
 	
 		updateDS();
 	}
 	
+	/**
+	 * Returns extended state of pickup arm.
+	 * @return True if arm extended.
+	 */
 	public boolean isExtended()
 	{
 		return extended;
 	}
 	
+	/**
+	 * Returns state of wheel motor.
+	 * @return True if running.
+	 */
 	public boolean isRunning()
 	{
 		return pickupRunning;
@@ -121,6 +160,7 @@ public class Pickup extends SubsystemBase
 	// eye is triggered and the fired method is called when interrupt occurs.
 	// Keep the length of the code in that method short as no new interrupts
 	// will be reported until fired method ends.
+	
 	private class InterruptHandler extends InterruptHandlerFunction<Object> 
 	{
 	     @Override

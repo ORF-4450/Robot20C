@@ -24,7 +24,7 @@ import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import Team4450.Robot20C.commands.Climb;
 import Team4450.Robot20C.commands.Drive;
-import Team4450.Robot20C.commands.PickupDeploy;
+import Team4450.Robot20C.commands.NotifierCommand2;
 import Team4450.Robot20C.commands.ShiftGears;
 import Team4450.Robot20C.commands.TestAuto;
 import Team4450.Robot20C.commands.TurnWheelCounting;
@@ -63,8 +63,8 @@ public class RobotContainer
 	private PowerDistributionPanel	pdp = new PowerDistributionPanel();
 
 	private Compressor	compressor = new Compressor(COMPRESSOR);	// Compressor class represents the PCM.
-
-	//private NavX		navx;
+	
+	public static NavX	navx;
 
 	private Thread      		monitorBatteryThread, monitorPDPThread;
 	private MonitorCompressor	monitorCompressorThread;
@@ -136,16 +136,16 @@ public class RobotContainer
 		pickup = new Pickup();
 		colorWheel = new ColorWheel();
 		climber = new Climber(() -> utilityStick.GetX());
+		
+		// Set the default climber control command.
+		
+		climber.setDefaultCommand(new Climb(climber, () -> utilityStick.GetY()));
 	  
 		// Set the default drive command. This command will be scheduled automatically to run
 		// every teleop period and so use the joy sticks to drive the robot. We pass in function
 		// references so the command can read the sticks directly as DoubleProviders.
 	  
 		driveBase.setDefaultCommand(driveCommand = new Drive(driveBase, () -> leftStick.GetY(), () -> rightStick.GetY()));
-		
-		// Set the default climber control command.
-		
-		climber.setDefaultCommand(new Climb(climber, () -> utilityStick.GetY()));
 
    		// Start the battery, compressor, PDP and camera feed monitoring Tasks.
 
@@ -210,7 +210,9 @@ public class RobotContainer
 		
 		// Toggle extend Pickup.
 		new JoystickButton(utilityStick.getJoyStick(), JoyStick.JoyStickButtonIDs.TOP_BACK.value)
-        	.whenPressed(new PickupDeploy(pickup));
+        	//.whenPressed(new PickupDeploy(pickup));		
+			//.whenPressed(new InstantCommand(pickup::toggleDeploy, pickup));
+			.whenPressed(new NotifierCommand2(pickup::toggleDeploy, 0.0, pickup));
 		
 		// -------- Launch pad buttons -------------
 		

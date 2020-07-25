@@ -75,13 +75,41 @@ public class DriveBase extends SubsystemBase
 		  
 		robotDrive = new DifferentialDrive(LRCanTalon, RRCanTalon);
 
-   		// Configure starting motor safety;
+   		// Configure starting motor safety. This runs a timer between updates of the
+		// robotDrive motor power with the set() method. If the timer expires because
+		// of no input, the assumption would be that something has done wrong and the
+		// code is no longer feeding the robotDrive with speed commands and so the
+		// robot could be in an uncontrolled state. So the watchdog turns off the
+		// motors until a new input is delivered by the set() method. The problem is
+		// with command based scheme, the drive command is executed once per scheduler
+		// run and if there are many commands or long running commands, the scheduler
+		// may well not make it back to executing the drive command before the timer
+		// expires. Experimentally determined 1 sec timer allows enough time for our
+		// commands to complete and scheduler returns to the drive command. 1 sec is
+		// a long time out but hopefully the robot cannot go too far off the reservation
+		// in one second if some problem prevents new set() calls. Conceivably a command
+		// that loops in execute would cause the whole scheduler based scheme to stop
+		// and so the drive command would not be run and the robot would drive at last
+		// power setting until the watchdog shuts the robotDrive down.
+		// One other note: as the length of the command list during a scheduler run
+		// lengthens or the commands take too much time, the rate at which the Drive
+		// command feeds the drive base will slow down and could lead to a lack of
+		// driving response. Using the Drive command as the default command of the
+		// DriveBase means the joysticks will be fed to the motors ONCE per scheduler
+		// run. Technically the scheduler runs each time RobotPeriodic() is called which
+		// is supposed to be every .02 sec. However, the actual time between runs is
+		// the total time of all commands executed and then to the next .02 sec call
+		// to RobotPeriodic(). Note that the FIRST lower level code runs a watchdog
+		// on each execution of the .02 sec loop and will raise a warning if your
+		// code takes more than .02 sec to complete. It may be hard to stay under
+		// that time. When it trips, the watchdog will print to  the console somewhat
+		// useful information to help determine where the time is being used.
    		
    		robotDrive.stopMotor();
-   		robotDrive.setSafetyEnabled(false);
-   		robotDrive.setExpiration(0.1);
+   		robotDrive.setSafetyEnabled(false);	// Will be enabled by the Drive command.
+   		robotDrive.setExpiration(1.0);
 	
-		// Always start in low gear with brakes enabled.
+		// Always start in low gear with braking enabled.
    		
    		SetCANTalonBrakeMode(true);
 		
