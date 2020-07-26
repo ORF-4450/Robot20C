@@ -9,6 +9,7 @@ import Team4450.Lib.LCD;
 import Team4450.Lib.Util;
 import Team4450.Lib.SRXMagneticEncoderRelative.PIDRateType;
 import Team4450.Robot20C.subsystems.DriveBase;
+import edu.wpi.first.wpilibj.geometry.Pose2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 
@@ -86,6 +87,11 @@ public class Drive extends CommandBase
 	  LCD.printLine(LCD_7, "Lrpm=%d - Rrpm=%d  Lmax vel=%.3f - Rmax vel=%.3f", driveBase.leftEncoder.getRPM(),
 			  driveBase.rightEncoder.getRPM(), driveBase.leftEncoder.getMaxVelocity(PIDRateType.velocityMPS),
 			  driveBase.rightEncoder.getMaxVelocity(PIDRateType.velocityMPS));
+	  
+	  Pose2d pose = driveBase.getOdometerPose();
+	  
+	  LCD.printLine(LCD_8, "pose x=%.1f  y=%.1f  deg=%.1f", pose.getTranslation().getX(), pose.getTranslation().getY(),
+				pose.getRotation().getDegrees());
 	  
 	  if (altDriveMode)
 	  {	  // normal tank with straight drive assist when sticks within 10% of each other and

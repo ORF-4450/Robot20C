@@ -60,30 +60,38 @@ public class Pickup extends SubsystemBase
 	
 	/**
 	 * Extend the pickup arm and start the wheel motor.
+	 * Method is thread safe.
 	 */
 	public void extend()
 	{
 		Util.consoleLog();
 		
-		pickupValve.SetA();
-		
-		extended = true;
-		
-		start(.50);
+		synchronized (this)
+		{
+			pickupValve.SetA();
+			
+			extended = true;
+			
+			start(.50);
+		}
 	}
 	
 	/**
 	 * Retract the pickup arm and stop the wheel motor.
+	 * Method is thread safe.
 	 */
 	public void retract()
 	{
 		Util.consoleLog();
 		
-		pickupValve.SetB();
-		
-		extended = false;
-		
-		stop();
+		synchronized (this)
+		{
+			pickupValve.SetB();
+			
+			extended = false;
+			
+			stop();
+		}
 	}
 	  
 	/**
@@ -103,7 +111,7 @@ public class Pickup extends SubsystemBase
 	 * Start pick up wheel and enable optical sensor interrupts.
 	 * @param power % power to run wheel motor 0.0->1.0.
 	 */
-	public void start(double power)
+	private void start(double power)
 	{
 		Util.consoleLog("%.2f", power);
 		
@@ -119,7 +127,7 @@ public class Pickup extends SubsystemBase
 	/**
 	 * Stop wheel motor and disable interrupts.
 	 */
-	public void stop()
+	private void stop()
 	{
 		Util.consoleLog();
 		
@@ -130,7 +138,7 @@ public class Pickup extends SubsystemBase
 		// Note, the following function is expensive in terms of the
 		// time it takes and will trigger the global watchdog warning
 		// and the drivebase motor safety will trigger if set below 1
-		// second. No idea why this would be the case.
+		// second. No idea why this function takes so long.
 		
 		ballEye.disableInterrupts();
 	

@@ -10,7 +10,12 @@ import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
 import Team4450.Lib.SRXMagneticEncoderRelative;
 import Team4450.Lib.Util;
 import Team4450.Lib.ValveDA;
+import Team4450.Lib.SRXMagneticEncoderRelative.DistanceUnit;
+import Team4450.Robot20C.RobotContainer;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
+import edu.wpi.first.wpilibj.geometry.Pose2d;
+import edu.wpi.first.wpilibj.geometry.Rotation2d;
+import edu.wpi.first.wpilibj.kinematics.DifferentialDriveOdometry;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
@@ -19,7 +24,9 @@ public class DriveBase extends SubsystemBase
 	private WPI_TalonSRX		LFCanTalon, LRCanTalon, RFCanTalon, RRCanTalon;
 	
 	private DifferentialDrive	robotDrive;
-	  
+
+	private DifferentialDriveOdometry	odometer;
+  
 	// SRX magnetic encoder plugged into a CAN Talon.
 	public SRXMagneticEncoderRelative	leftEncoder, rightEncoder;
 
@@ -114,12 +121,17 @@ public class DriveBase extends SubsystemBase
    		SetCANTalonBrakeMode(true);
 		
 		lowSpeed();
+		
+		odometer = new DifferentialDriveOdometry(RobotContainer.navx.getTotalYaw2d());
 	}
 	
+	// This method will be called once per scheduler run.
 	@Override
 	public void periodic() 
 	{
-		// This method will be called once per scheduler run.
+		odometer.update(RobotContainer.navx.getTotalYaw2d(), 
+				   leftEncoder.getDistance(DistanceUnit.Meters), 
+				   leftEncoder.getDistance(DistanceUnit.Meters));
 	}
 	
 	/**
@@ -134,6 +146,7 @@ public class DriveBase extends SubsystemBase
 	
 	/**
 	 * Tank drive function. Passes left/right speed values to the robot drive.
+	 * Should be called every scheduler run by the Drive command.
 	 * @param leftSpeed Left power setting -1.0 to +1.0.
 	 * @param rightSpeed RIght power setting -1.0 to +1.0.
 	 * @param squaredInputs True reduces sensitivity at low speeds.
@@ -327,5 +340,34 @@ public class DriveBase extends SubsystemBase
 		Util.consoleLog("%s", enabled);
 		
 		robotDrive.setSafetyEnabled(enabled);
+	}
+	
+	/**
+	 * Get current pose from odometer. Pose distances in meters.
+	 * Pose X is distance along the long side of the field from your driver
+	 * station wall. Y is distance along the short side of the field starting
+	 * on the left. Angle is referenced from zero as pointing directly at the
+	 * opposition driver station wall, + is left, - is right of that zero
+	 * alignment.
+	 * @return Current pose.
+	 */
+	public Pose2d getOdometerPose()
+	{
+		return odometer.getPoseMeters();
+	}
+	
+	/**
+	 * Reset odometer to new pose and angle. Resets encoders. You must reset
+	 * the Navx angle manually.
+	 * @param pose New starting pose.
+	 * @param angle Current gyro angle used to offset future angle measurements
+	 * acting to reset odometer angle without resetting gyro.
+	 */
+	public void resetOdometer(Pose2d pose, Rotation2d angle)
+	{
+		odometer.resetPosition(pose, angle);
+		
+		leftEncoder.reset();
+		rightEncoder.reset();
 	}
 }

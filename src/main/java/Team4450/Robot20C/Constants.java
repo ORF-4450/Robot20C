@@ -16,7 +16,7 @@ import edu.wpi.first.wpilibj.DriverStation;
  */
 public final class Constants
 {
-	public static String		PROGRAM_NAME = "RAC20C-07.24.20-1";
+	public static String		PROGRAM_NAME = "RAC20C-07.25.20-1";
 
 	public static Properties	robotProperties;
 	  
@@ -59,5 +59,6 @@ public final class Constants
 	public static final int		LCD_1 = 1;	// Robot, Auto Commands.
 	public static final int		LCD_2 = 2;	// DriveCommand.
 	public static final int		LCD_3 = 3;	// DriveCommand.
-	public static final int		LCD_7 = 7;	// DriveCommand
+	public static final int		LCD_7 = 7;	// DriveCommand.
+	public static final int		LCD_8 = 8;	// DriveCommand.
 }

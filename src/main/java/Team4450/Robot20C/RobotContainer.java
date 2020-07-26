@@ -20,6 +20,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SendableRegistry;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.ConditionalCommand;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import Team4450.Robot20C.commands.Climb;
@@ -47,6 +48,9 @@ public class RobotContainer
 	private final ColorWheel	colorWheel;
 	private final Climber		climber;
 	private final Drive			driveCommand;
+	
+	private final TurnWheelCounting	turnWheelCounting;
+	private final InstantCommand	cancelTurnWheelCounting;
 
 	// Joy sticks. 3 Joy sticks use RobotLib JoyStick class for some of its extra features. 
 	// Specify trigger for monitoring to cause JoyStick event monitoring to not start. We will 
@@ -137,7 +141,15 @@ public class RobotContainer
 		colorWheel = new ColorWheel();
 		climber = new Climber(() -> utilityStick.GetX());
 		
-		// Set the default climber control command.
+		// Create any persistent commands.
+		
+		turnWheelCounting = new TurnWheelCounting(colorWheel);
+		cancelTurnWheelCounting = new InstantCommand(turnWheelCounting::cancel);
+		
+		// Set the default climb command. This command will be scheduled automatically to run
+		// every teleop period and so use the utility joy stick to control the climber winch.
+		// We pass in function reference so the command can read the stick directly as a
+		// DoubleProvider.
 		
 		climber.setDefaultCommand(new Climb(climber, () -> utilityStick.GetY()));
 	  
@@ -209,6 +221,14 @@ public class RobotContainer
 		// -------- Utility stick buttons ----------
 		
 		// Toggle extend Pickup.
+		// So we show 3 ways to control the pickup. A regular command that toggles pickup state,
+		// an instant command that calls a method on Pickup class that toggles state and finally
+		// our special notifier variant that runs the Pickup class toggle method in a separate
+		// thread. So we show all 3 methods as illustration but the reason we tried 3 methods is
+		// that the pickup retraction action takes almost 1 second (due apparently to some big
+		// overhead in disabling the electric eye interrupt) and triggers the global and drivebase
+		// watchdogs. Threading does not as the toggle method is not run on the scheduler thread.
+		
 		new JoystickButton(utilityStick.getJoyStick(), JoyStick.JoyStickButtonIDs.TOP_BACK.value)
         	//.whenPressed(new PickupDeploy(pickup));		
 			//.whenPressed(new InstantCommand(pickup::toggleDeploy, pickup));
@@ -230,7 +250,7 @@ public class RobotContainer
 		
 		// Start command to turn color wheel specified number of turns.
 		new JoystickButton(launchPad, LaunchPad.LaunchPadControlIDs.BUTTON_BLUE_RIGHT.value)
-    		.whenReleased(new TurnWheelCounting(colorWheel));
+    		.whenReleased(new ConditionalCommand(turnWheelCounting, cancelTurnWheelCounting, turnWheelCounting::isScheduled));
 	
 		// Start command to turn color wheel to target color sent by FMS.
 		new JoystickButton(launchPad, LaunchPad.LaunchPadControlIDs.BUTTON_YELLOW.value)
