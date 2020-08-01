@@ -90,7 +90,7 @@ public class Drive extends CommandBase
 	  
 	  Pose2d pose = driveBase.getOdometerPose();
 	  
-	  LCD.printLine(LCD_8, "pose x=%.1f  y=%.1f  deg=%.1f", pose.getTranslation().getX(), pose.getTranslation().getY(),
+	  LCD.printLine(LCD_8, "pose x=%.1fm  y=%.1fm  deg=%.1f", pose.getTranslation().getX(), pose.getTranslation().getY(),
 				pose.getRotation().getDegrees());
 	  
 	  if (altDriveMode)

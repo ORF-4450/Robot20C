@@ -102,15 +102,16 @@ public class DriveBase extends SubsystemBase
 		// lengthens or the commands take too much time, the rate at which the Drive
 		// command feeds the drive base will slow down and could lead to a lack of
 		// driving response. Using the Drive command as the default command of the
-		// DriveBase means the joysticks will be fed to the motors ONCE per scheduler
+		// DriveBase means the joy sticks will be fed to the motors ONCE per scheduler
 		// run. Technically the scheduler runs each time RobotPeriodic() is called which
 		// is supposed to be every .02 sec. However, the actual time between runs is
 		// the total time of all commands executed and then to the next .02 sec call
-		// to RobotPeriodic(). Note that the FIRST lower level code runs a watchdog
+		// to RobotPeriodic(). Note that the FIRST lower level code also runs a watchdog
 		// on each execution of the .02 sec loop and will raise a warning if your
 		// code takes more than .02 sec to complete. It may be hard to stay under
 		// that time. When it trips, the watchdog will print to  the console somewhat
-		// useful information to help determine where the time is being used.
+		// useful information to help determine where the time is being used. This 
+		// watchdog timeout cannot be set or turned off.
    		
    		robotDrive.stopMotor();
    		robotDrive.setSafetyEnabled(false);	// Will be enabled by the Drive command.
@@ -131,7 +132,7 @@ public class DriveBase extends SubsystemBase
 	{
 		odometer.update(RobotContainer.navx.getTotalYaw2d(), 
 				   leftEncoder.getDistance(DistanceUnit.Meters), 
-				   leftEncoder.getDistance(DistanceUnit.Meters));
+				   rightEncoder.getDistance(DistanceUnit.Meters));
 	}
 	
 	/**
@@ -303,14 +304,19 @@ public class DriveBase extends SubsystemBase
 	}
 	
 	/**
-	 * Reset the drive wheel encoders.
+	 * Reset the drive wheel encoders to zero.
 	 */
 	public void resetEncoders()
 	{
 		Util.consoleLog();
 		
-		leftEncoder.reset();
-		rightEncoder.reset();
+		//leftEncoder.reset();
+		//rightEncoder.reset();
+		
+		RobotContainer.navx.resetYaw();
+		RobotContainer.navx.setHeading(0);
+		
+		resetOdometer(new Pose2d(0.0, 0.0, RobotContainer.navx.getTotalYaw2d()));
 	}
 	
 	/**
@@ -363,9 +369,9 @@ public class DriveBase extends SubsystemBase
 	 * @param angle Current gyro angle used to offset future angle measurements
 	 * acting to reset odometer angle without resetting gyro.
 	 */
-	public void resetOdometer(Pose2d pose, Rotation2d angle)
+	public void resetOdometer(Pose2d pose)
 	{
-		odometer.resetPosition(pose, angle);
+		odometer.resetPosition(pose, pose.getRotation());
 		
 		leftEncoder.reset();
 		rightEncoder.reset();

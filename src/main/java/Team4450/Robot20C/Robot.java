@@ -105,8 +105,9 @@ public class Robot extends TimedRobot
 	  
 	  // WARNING: This function is called repeatedly even when robot is DISABLED. This means the
 	  // periodic method in all subsystems will be called even when disabled. The scheduler will
-	  // stop commands when disabled but not subsystems.
-
+	  // stop commands when disabled but not subsystems. It is possible to set Commands to run
+	  // when robot is disabled. This seems a bad idea...
+	  
 	  CommandScheduler.getInstance().run();
   }
 

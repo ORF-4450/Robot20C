@@ -43,19 +43,42 @@ import Team4450.Robot20C.subsystems.Pickup;
  */
 public class RobotContainer 
 {
+	// Subsystems.
+	
 	private final DriveBase 	driveBase;
 	private final Pickup		pickup;
 	private final ColorWheel	colorWheel;
 	private final Climber		climber;
 	private final Drive			driveCommand;
 	
-	private final TurnWheelCounting	turnWheelCounting;
-	private final InstantCommand	cancelTurnWheelCounting;
+	// Persistent Commands.
+	
+	private final TurnWheelCounting		turnWheelCounting;
+	private final TurnWheelToColor		turnWheelToColor;
 
-	// Joy sticks. 3 Joy sticks use RobotLib JoyStick class for some of its extra features. 
-	// Specify trigger for monitoring to cause JoyStick event monitoring to not start. We will 
-	// use WpiLib button handling instead of RobotLib event monitoring.
-	// Launch pad monitoring uses regular wpilib Joystick class.
+	// Some notes about Commands.
+	// When a Command is created with the New operator, its constructor is called. When the
+	// command is added to the Scheduler to be run, its initialize method is called. Then on
+	// each scheduler run, as long as the command is still scheduled, its execute method is
+	// called followed by isFinished. If isFinished it false, the command remains in the
+	// scheduler list and on next run, execute is called followed by isFinihsed. If isFinished
+	// returns true, the end method is called and the command is removed from the scheduler list.
+	// Now if you create another instance with new, you get the constructor again. But if you 
+	// are re-scheduling an existing command instance (like the ones above), you do not get the
+	// constructor called, but you do get initialize called again and then on to execute & etc.
+	// So this means you have to be careful about command initialization activities as a persistent
+	// command in effect has two lifetimes (or scopes). Class global and each new time the command
+	// is scheduled. Note the FIRST doc on the scheduler process is not accurate as of 2020.
+	
+	// Joy sticks. 3 Joy sticks use RobotLib JoyStick class for some of its extra features. The
+	// wpilib Joystick is passed into our JoyStick. This means we can use features of both.
+	// Specify trigger for monitoring to cause our JoyStick event monitoring to not start. We will 
+	// use WpiLib button handling instead of RobotLib event monitoring. Note that button responsiveness
+	// may be slowed as the schedulers command list gets longer or commands get longer as buttons are
+	// processed once per scheduler run. RobotLib buttons are monitored in a separate thread and execute
+	// functions in that separate thread and so are not generally affected by other functions in terms of
+	// responsiveness. Which way is best? Thats a debatable topic. We use wpilib buttons here to conform
+	// to FIRSTs "approved" way of doing things. Launch pad monitoring uses regular wpilib Joystick class.
 	
 	private JoyStick	leftStick = new JoyStick(new Joystick(LEFT_STICK), "Left Stick", JoyStickButtonIDs.TRIGGER);
 	private JoyStick	rightStick = new JoyStick(new Joystick(RIGHT_STICK), "Right  Stick", JoyStickButtonIDs.TRIGGER);
@@ -144,7 +167,7 @@ public class RobotContainer
 		// Create any persistent commands.
 		
 		turnWheelCounting = new TurnWheelCounting(colorWheel);
-		cancelTurnWheelCounting = new InstantCommand(turnWheelCounting::cancel);
+		turnWheelToColor = new TurnWheelToColor(colorWheel);
 		
 		// Set the default climb command. This command will be scheduled automatically to run
 		// every teleop period and so use the utility joy stick to control the climber winch.
@@ -213,6 +236,10 @@ public class RobotContainer
         	.whenPressed(new ShiftGears(driveBase));
   
 		// ------- Right stick buttons -------------
+		
+		// For simple functions, instead of creating commands, we can call convenience functions on
+		// the target subsystem from an InstantCommand. It can be tricky deciding what functions
+		// should be an aspect of the subsystem and what functions should be in Commands...
 
 		// Toggle alternate driving mode.
 		new JoystickButton(rightStick.getJoyStick(), JoyStick.JoyStickButtonIDs.TRIGGER.value)
@@ -228,6 +255,7 @@ public class RobotContainer
 		// that the pickup retraction action takes almost 1 second (due apparently to some big
 		// overhead in disabling the electric eye interrupt) and triggers the global and drivebase
 		// watchdogs. Threading does not as the toggle method is not run on the scheduler thread.
+		// Note: the threaded command can only execute a runnable (function on a class) not a Command.
 		
 		new JoystickButton(utilityStick.getJoyStick(), JoyStick.JoyStickButtonIDs.TOP_BACK.value)
         	//.whenPressed(new PickupDeploy(pickup));		
@@ -248,13 +276,13 @@ public class RobotContainer
 		new JoystickButton(launchPad, LaunchPad.LaunchPadControlIDs.BUTTON_BLUE.value)
     		.whenReleased(new InstantCommand(colorWheel::toggleWheel, colorWheel));
 		
-		// Start command to turn color wheel specified number of turns.
+		// Start/stop command to turn color wheel specified number of turns.
 		new JoystickButton(launchPad, LaunchPad.LaunchPadControlIDs.BUTTON_BLUE_RIGHT.value)
-    		.whenReleased(new ConditionalCommand(turnWheelCounting, cancelTurnWheelCounting, turnWheelCounting::isScheduled));
+    		.toggleWhenActive(turnWheelCounting);
 	
-		// Start command to turn color wheel to target color sent by FMS.
+		// Start/stop command to turn color wheel to target color sent by FMS.
 		new JoystickButton(launchPad, LaunchPad.LaunchPadControlIDs.BUTTON_YELLOW.value)
-    		.whenReleased(new TurnWheelToColor(colorWheel));
+    		.toggleWhenActive(turnWheelToColor);
 		
 		// Toggle climber brake. Note we don't supply climber as subsystem on this command
 		// to get around a quirk in how the scheduler works...because on the toggle brake

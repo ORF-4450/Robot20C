@@ -14,7 +14,7 @@ import edu.wpi.first.wpilibj2.command.CommandBase;
 public class TurnWheelCounting extends CommandBase 
 {
   private final ColorWheel	colorWheel;
-  private int				turnCount = 0;
+  private int				turnCount;
   private boolean			onTargetColor;
 
   /**
@@ -47,6 +47,8 @@ public class TurnWheelCounting extends CommandBase
   	
 	  colorWheel.setTargetToCurrentColor();
 		
+	  turnCount = 0;
+	  
 	  onTargetColor = true;
 	  
 	  colorWheel.startWheel(COLORWHEEL_SPEED);
