@@ -8,18 +8,23 @@ import Team4450.Robot20C.RobotContainer;
 import Team4450.Robot20C.subsystems.DriveBase;
 
 import edu.wpi.first.wpilibj.geometry.Pose2d;
+import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandBase;
+import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 
-public class TestAuto extends CommandBase
+public class TestAuto1 extends CommandBase
 {
 	private final DriveBase driveBase;
+	
+	private SequentialCommandGroup	commands = null;
+	private Command					command = null;
 
 	/**
-	 * Creates a new TestAuto autonomous command.
+	 * Creates a new TestAuto1 autonomous command.
 	 *
 	 * @param subsystem The subsystem used by this command.
 	 */
-	public TestAuto(DriveBase subsystem) 
+	public TestAuto1(DriveBase subsystem) 
 	{
 		Util.consoleLog();
 		
@@ -40,7 +45,7 @@ public class TestAuto extends CommandBase
 		
 		driveBase.setMotorSafety(false);  // Turn off watchdog.
 		
-	  	LCD.printLine(LCD_1, "Mode: Auto - TestAutoCommand - All=%s, Location=%d, FMS=%b, msg=%s", alliance.name(), location, 
+	  	LCD.printLine(LCD_1, "Mode: Auto - TestAuto1 - All=%s, Location=%d, FMS=%b, msg=%s", alliance.name(), location, 
 				ds.isFMSAttached(), gameMessage);
 		
 		// Reset wheel encoders.	  	
@@ -61,15 +66,38 @@ public class TestAuto extends CommandBase
 			
 		// Reset odometry tracking.
 		driveBase.resetOdometer(new Pose2d(0.0, 0.0, RobotContainer.navx.getTotalYaw2d()));
+		
+		// Since a typical autonomous program consists of multiple actions, which are commands
+		// in this style of programming, we will create a list of commands for the actions to
+		// be taken in this auto program and add them to a sequential command list to be 
+		// executed one after the other until done.
+		
+		commands = new SequentialCommandGroup();
+		
+		// First action is to drive forward 2000 encoder counts and stop with brakes on.
+		
+		command = new AutoDrive(driveBase, .25, 2000, 
+								AutoDrive.StopMotors.stop,
+								AutoDrive.Brakes.on,
+								AutoDrive.Pid.off,
+								AutoDrive.Heading.angle);
+		
+		commands.addCommands(command);
+		
+		// Launch autonomous command sequence.
+		
+		commands.schedule();
 	}
 	
 	/**
 	 *  Called every time the scheduler runs while the command is scheduled.
+	 *  In this model, this command just idles while the Command Group we
+	 *  created runs on its own executing the steps (commands) of this Auto
+	 *  program.
 	 */
 	@Override
 	public void execute() 
 	{
-		Util.consoleLog();
 	}
 	
 	/**
@@ -84,11 +112,13 @@ public class TestAuto extends CommandBase
 	}
 	
 	/**
-	 *  Returns true when the command should end.
+	 *  Returns true when the command should end. That should be when
+	 *  all the commands in the command list have finished.
 	 */
 	@Override
 	public boolean isFinished() 
 	{
-		return false;	// false makes this command run until auto mode ends.
+		return commands.isFinished();
 	}
 }
+

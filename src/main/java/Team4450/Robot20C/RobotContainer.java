@@ -28,6 +28,7 @@ import Team4450.Robot20C.commands.Drive;
 import Team4450.Robot20C.commands.NotifierCommand2;
 import Team4450.Robot20C.commands.ShiftGears;
 import Team4450.Robot20C.commands.TestAuto;
+import Team4450.Robot20C.commands.TestAuto1;
 import Team4450.Robot20C.commands.TurnWheelCounting;
 import Team4450.Robot20C.commands.TurnWheelToColor;
 import Team4450.Robot20C.subsystems.Climber;
@@ -78,7 +79,7 @@ public class RobotContainer
 	// processed once per scheduler run. RobotLib buttons are monitored in a separate thread and execute
 	// functions in that separate thread and so are not generally affected by other functions in terms of
 	// responsiveness. Which way is best? Thats a debatable topic. We use wpilib buttons here to conform
-	// to FIRSTs "approved" way of doing things. Launch pad monitoring uses regular wpilib Joystick class.
+	// to FIRSTs "approved" way of doing things. Launch pad monitoring uses regular wpilib Joytick class.
 	
 	private JoyStick	leftStick = new JoyStick(new Joystick(LEFT_STICK), "Left Stick", JoyStickButtonIDs.TRIGGER);
 	private JoyStick	rightStick = new JoyStick(new Joystick(RIGHT_STICK), "Right  Stick", JoyStickButtonIDs.TRIGGER);
@@ -101,7 +102,8 @@ public class RobotContainer
 	private enum AutoProgram
 	{
 		NoProgram,
-		TestAuto
+		TestAuto,
+		TestAuto1
 	}
 
 	private static SendableChooser<AutoProgram>	autoChooser;
@@ -171,14 +173,20 @@ public class RobotContainer
 		
 		// Set the default climb command. This command will be scheduled automatically to run
 		// every teleop period and so use the utility joy stick to control the climber winch.
-		// We pass in function reference so the command can read the stick directly as a
-		// DoubleProvider.
+		// We pass in function lambda so the command can read the stick generically as a
+		// DoubleProvider (see below).
 		
 		climber.setDefaultCommand(new Climb(climber, () -> utilityStick.GetY()));
 	  
 		// Set the default drive command. This command will be scheduled automatically to run
 		// every teleop period and so use the joy sticks to drive the robot. We pass in function
-		// references so the command can read the sticks directly as DoubleProviders.
+		// lambdas, which is like creating a DoulbleSupplier conformant class, so the command can 
+		// read the sticks generically as DoubleSuppliers. This would be the same as implementing
+		// the DoubleSupplier interface on the Joystick class, returning the GetY() value. The point
+		// of all this is removing the direct connection between the Drive and JoyStick classes. The
+		// other aspect of all this is that we are passing functions into the Drive command so it can
+		// read the values later when the Drive command is executing under the Scheduler. Drive command
+		// code does not have to know anything about the JoySticks but can still read them.
 	  
 		driveBase.setDefaultCommand(driveCommand = new Drive(driveBase, () -> leftStick.GetY(), () -> rightStick.GetY()));
 
@@ -338,6 +346,10 @@ public class RobotContainer
 			case TestAuto:
 				autoCommand = new TestAuto(driveBase);
 				break;
+				
+			case TestAuto1:
+				autoCommand = new TestAuto1(driveBase);
+				break;
 		}
 
 		// The command to be run in autonomous.
@@ -372,7 +384,8 @@ public class RobotContainer
 		
 		SendableRegistry.add(autoChooser, "Auto Program");
 		autoChooser.setDefaultOption("No Program", AutoProgram.NoProgram);
-		autoChooser.addOption("Test Auto Program", AutoProgram.TestAuto);		
+		autoChooser.addOption("Test Auto No Action", AutoProgram.TestAuto);		
+		autoChooser.addOption("Test Auto Program", AutoProgram.TestAuto1);		
 				
 		SmartDashboard.putData(autoChooser);
 	}

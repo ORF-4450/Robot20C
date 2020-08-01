@@ -11,10 +11,11 @@ import Team4450.Lib.SRXMagneticEncoderRelative;
 import Team4450.Lib.Util;
 import Team4450.Lib.ValveDA;
 import Team4450.Lib.SRXMagneticEncoderRelative.DistanceUnit;
+
 import Team4450.Robot20C.RobotContainer;
+
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
 import edu.wpi.first.wpilibj.geometry.Pose2d;
-import edu.wpi.first.wpilibj.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.kinematics.DifferentialDriveOdometry;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -33,6 +34,8 @@ public class DriveBase extends SubsystemBase
 	private ValveDA					highLowValve = new ValveDA(HIGHLOW_VALVE);
 
 	private boolean					talonBrakeMode, lowSpeed, highSpeed;
+	
+	private double					cumulativeLeftCount = 0, cumulativeRightCount = 0;
 	
 	/**
 	 * Creates a new DriveBase Subsystem.
@@ -130,9 +133,15 @@ public class DriveBase extends SubsystemBase
 	@Override
 	public void periodic() 
 	{
-		odometer.update(RobotContainer.navx.getTotalYaw2d(), 
-				   leftEncoder.getDistance(DistanceUnit.Meters), 
-				   rightEncoder.getDistance(DistanceUnit.Meters));
+		// Update the odometer tracking robot position on the field. We have to track the
+		// cumulative encoder counts since at any time we can reset the encoders to facilitate
+		// driving functions like auto drive, alt driving mode and more. Odometer wants counts
+		// as total since start of match or last odometer reset.		
+		
+		cumulativeLeftCount += leftEncoder.getDistance(DistanceUnit.Meters);
+		cumulativeRightCount += rightEncoder.getDistance(DistanceUnit.Meters);
+		
+		odometer.update(RobotContainer.navx.getTotalYaw2d(), cumulativeLeftCount, cumulativeRightCount);
 	}
 	
 	/**
@@ -178,9 +187,11 @@ public class DriveBase extends SubsystemBase
 		talon.clearStickyFaults(0); //0ms means no blocking.
 	}
 	  
-	// Set neutral behavior of drive CAN Talons. True = brake mode, false = coast mode.
-
-	private void SetCANTalonBrakeMode(boolean brakeMode)
+	/**
+	 * Set neutral behavior of drive CAN Talons.
+	 * @param brakeMode True = brake mode, false = coast mode.
+	 */
+	public void SetCANTalonBrakeMode(boolean brakeMode)
 	{
 		Util.consoleLog("brakes on=%b", brakeMode);
 		  
@@ -310,13 +321,35 @@ public class DriveBase extends SubsystemBase
 	{
 		Util.consoleLog();
 		
-		//leftEncoder.reset();
-		//rightEncoder.reset();
+		leftEncoder.reset();
+		rightEncoder.reset();
+	}
+	
+	/**
+	 * Reset the drive wheel encoders to zero with time delay. There can be a significant delay
+	 * between calling for encoder reset and the encoder returning zero. Sometimes this does not
+	 * matter and other times it can really mess things up if you reset encoder but at the time
+	 * you next read the encoder for a measurement (like in autonomous programs) the encoder has
+	 * not yet been reset and returns the previous count. This method resets and delays 112ms
+	 * which testing seemed to show would cause an immediate read of the reset encoder to return
+	 * zero.
+	 */
+	public void resetEncodersWithDelay()
+	{
+		Util.consoleLog();
 		
-		RobotContainer.navx.resetYaw();
-		RobotContainer.navx.setHeading(0);
+		Util.consoleLog("at encoder reset le=%d  re=%d", leftEncoder.get(), rightEncoder.get());
 		
-		resetOdometer(new Pose2d(0.0, 0.0, RobotContainer.navx.getTotalYaw2d()));
+		// Set encoders to update every 100ms.
+		rightEncoder.setStatusFramePeriod(100);
+		leftEncoder.setStatusFramePeriod(100);
+
+		// Reset encoders with 112ms delay before proceeding.
+		int rightError = rightEncoder.reset(2);
+		int leftError = leftEncoder.reset(110);
+		
+		Util.consoleLog("after reset le=%d  re=%d  sl=%d  sr=%d", leftEncoder.get(), rightEncoder.get(),
+						leftError, rightError);	
 	}
 	
 	/**
@@ -363,17 +396,14 @@ public class DriveBase extends SubsystemBase
 	}
 	
 	/**
-	 * Reset odometer to new pose and angle. Resets encoders. You must reset
-	 * the Navx angle manually.
+	 * Reset odometer to new position and cumulative angle.
 	 * @param pose New starting pose.
-	 * @param angle Current gyro angle used to offset future angle measurements
-	 * acting to reset odometer angle without resetting gyro.
 	 */
 	public void resetOdometer(Pose2d pose)
 	{
 		odometer.resetPosition(pose, pose.getRotation());
 		
-		leftEncoder.reset();
-		rightEncoder.reset();
+		cumulativeLeftCount = 0;
+		cumulativeRightCount = 0;
 	}
 }

@@ -59,6 +59,8 @@ public final class Constants
 	public static final int		LCD_1 = 1;	// Robot, Auto Commands.
 	public static final int		LCD_2 = 2;	// DriveCommand.
 	public static final int		LCD_3 = 3;	// DriveCommand.
+	public static final int		LCD_4 = 4;	// AutoDrive.
+	public static final int		LCD_5 = 5;	// AutoDrive.
 	public static final int		LCD_7 = 7;	// DriveCommand.
 	public static final int		LCD_8 = 8;	// DriveCommand.
 }
