@@ -84,9 +84,15 @@ public class TestAuto1 extends CommandBase
 		
 		commands.addCommands(command);
 		
+		// Next action is to rotate 180 degrees right.
+		
+		command = new AutoRotate(driveBase, .25, 180, false, false);
+		
+		commands.addCommands(command);
+		
 		// Next action is to drive back same encoder counts and stop with brakes on.
 		
-		command = new AutoDrive(driveBase, -.50, 10000, 
+		command = new AutoDrive(driveBase, .50, 10000, 
 								AutoDrive.StopMotors.stop,
 								AutoDrive.Brakes.on,
 								AutoDrive.Pid.on,

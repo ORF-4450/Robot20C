@@ -12,16 +12,16 @@ public class AutoDrive extends CommandBase
 {
 	private final DriveBase driveBase;
 
-	double			yaw, kSteeringGain = .10, elapsedTime = 0;
-	double			kP = .00015, kI = 0.000015, kD = 0.0;
-	double			power; 
-	int 			encoderCount; 
-	StopMotors 		stop;
-	Brakes 			brakes;
-	Pid 			pid;
-	Heading 		heading;
+	private double			yaw, kSteeringGain = .10, elapsedTime = 0;
+	private double			kP = .00015, kI = 0.000015, kD = 0.0;
+	private double			power; 
+	private int 			encoderCount; 
+	private StopMotors 		stop;
+	private Brakes 			brakes;
+	private Pid 			pid;
+	private Heading 		heading;
 	
-	SynchronousPID	pidController = null;
+	SynchronousPID			pidController = null;
 
 	/**
 	 * Creates a new AutoDrive command.
@@ -50,8 +50,6 @@ public class AutoDrive extends CommandBase
 					 Pid pid, 
 					 Heading heading) 
 	{
-		Util.consoleLog();
-		
 		driveBase = subsystem;
 
 		Util.consoleLog("pwr=%.2f  count=%d  stop=%s  brakes=%s  pid=%s  hdg=%s", power, encoderCounts, stop, brakes, 
@@ -131,9 +129,9 @@ public class AutoDrive extends CommandBase
 		{
 			elapsedTime = Util.getElaspedTime();
 			
-			pidController.calculate(getEncoderCount(), elapsedTime);
+			power = pidController.calculate(getEncoderCount(), elapsedTime);
 			
-			power = pidController.get();
+			//power = pidController.get();
 			
 			Util.consoleLog("error=%.2f  power=%.2f  time=%f", pidController.getError(), power, elapsedTime);
 		}
