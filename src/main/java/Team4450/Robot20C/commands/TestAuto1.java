@@ -74,12 +74,22 @@ public class TestAuto1 extends CommandBase
 		
 		commands = new SequentialCommandGroup();
 		
-		// First action is to drive forward 2000 encoder counts and stop with brakes on.
+		// First action is to drive forward some encoder counts and stop with brakes on.
 		
-		command = new AutoDrive(driveBase, .25, 2000, 
+		command = new AutoDrive(driveBase, .50, 10000, 
+								AutoDrive.StopMotors.stop,
+								AutoDrive.Brakes.off,
+								AutoDrive.Pid.on,
+								AutoDrive.Heading.angle);
+		
+		commands.addCommands(command);
+		
+		// Next action is to drive back same encoder counts and stop with brakes on.
+		
+		command = new AutoDrive(driveBase, -.50, 10000, 
 								AutoDrive.StopMotors.stop,
 								AutoDrive.Brakes.on,
-								AutoDrive.Pid.off,
+								AutoDrive.Pid.on,
 								AutoDrive.Heading.angle);
 		
 		commands.addCommands(command);
@@ -109,16 +119,21 @@ public class TestAuto1 extends CommandBase
 		Util.consoleLog("interrupted=%b", interrupted);
 		
 		driveBase.stop();
+		
+		Util.consoleLog("final heading=%.2f  Radians=%.2f", RobotContainer.navx.getHeading(), RobotContainer.navx.getHeadingR());
 	}
 	
 	/**
-	 *  Returns true when the command should end. That should be when
+	 *  Returns true when this command should end. That should be when
 	 *  all the commands in the command list have finished.
 	 */
 	@Override
 	public boolean isFinished() 
 	{
-		return commands.isFinished();
+		// Note: commands.isFinished() will not work to detect the end of the command list
+		// due to how FIRST coded the SquentialCommandGroup class. 
+		
+		return !commands.isScheduled();
 	}
 }
 

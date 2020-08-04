@@ -180,13 +180,14 @@ public class RobotContainer
 	  
 		// Set the default drive command. This command will be scheduled automatically to run
 		// every teleop period and so use the joy sticks to drive the robot. We pass in function
-		// lambdas, which is like creating a DoulbleSupplier conformant class, so the command can 
+		// lambda, which is like creating a DoulbleSupplier conformant class, so the command can 
 		// read the sticks generically as DoubleSuppliers. This would be the same as implementing
 		// the DoubleSupplier interface on the Joystick class, returning the GetY() value. The point
 		// of all this is removing the direct connection between the Drive and JoyStick classes. The
 		// other aspect of all this is that we are passing functions into the Drive command so it can
 		// read the values later when the Drive command is executing under the Scheduler. Drive command
-		// code does not have to know anything about the JoySticks but can still read them.
+		// code does not have to know anything about the JoySticks (or any other source) but can still
+		// read them.
 	  
 		driveBase.setDefaultCommand(driveCommand = new Drive(driveBase, () -> leftStick.GetY(), () -> rightStick.GetY()));
 

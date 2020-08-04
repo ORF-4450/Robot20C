@@ -13,9 +13,9 @@ public class AutoDrive extends CommandBase
 	private final DriveBase driveBase;
 
 	double			yaw, kSteeringGain = .10, elapsedTime = 0;
-	double			kP = .002, kI = 0.001, kD = 0.001;
+	double			kP = .00015, kI = 0.000015, kD = 0.0;
 	double			power; 
-	int 			encoderCounts; 
+	int 			encoderCount; 
 	StopMotors 		stop;
 	Brakes 			brakes;
 	Pid 			pid;
@@ -25,11 +25,11 @@ public class AutoDrive extends CommandBase
 
 	/**
 	 * Creates a new AutoDrive command.
-	 *
-	 * @param subsystem The subsystem used by this command.
 	 * 
 	 * Auto drive straight in set direction and power for specified encoder count. Stops
 	 * with or without brakes on CAN bus drive system. Uses NavX yaw to drive straight.
+	 *
+	 * @param subsystem The subsystem used by this command.
 	 * @param power Power applied, + is forward.
 	 * @param encoderCounts Target encoder counts to move, always +.
 	 * @param stop Stop stops motors at end of move, dontStop leaves power on to flow into next move.
@@ -62,7 +62,7 @@ public class AutoDrive extends CommandBase
 		if (encoderCounts <= 0) throw new IllegalArgumentException("Encoder counts < 1");
 			  
 		this.power = power;
-		this.encoderCounts = encoderCounts;
+		this.encoderCount = encoderCounts;
 		this.stop = stop;
 		this.brakes = brakes;
 		this.pid = pid;
@@ -81,7 +81,7 @@ public class AutoDrive extends CommandBase
 		else
 			driveBase.SetCANTalonBrakeMode(false);
 			
-		driveBase.resetEncoders();
+		driveBase.resetEncodersWithDelay();
 		
 		// If not measuring yaw from current heading, reset yaw based on current direction robot is facing.
 		
@@ -102,15 +102,17 @@ public class AutoDrive extends CommandBase
 			
 			if (power < 0)
 			{
-				pidController.setSetpoint(-encoderCounts);
+				pidController.setSetpoint(-encoderCount);
 				pidController.setOutputRange(power, 0);
 			}
 			else
 			{
-				pidController.setSetpoint(encoderCounts);
+				pidController.setSetpoint(encoderCount);
 				pidController.setOutputRange(0, power);
 			}
 
+			// Start elapsed time tracking.
+			
 			Util.getElaspedTime();
 		}
 	}
@@ -120,7 +122,7 @@ public class AutoDrive extends CommandBase
 	{
 		Util.consoleLog();
 		
-		LCD.printLine(LCD_4, "wheel encoder=%d", getEncoderCounts());
+		LCD.printLine(LCD_4, "Auto wheel encoder avg=%d", getEncoderCount());
 
 		// Use PID to determine the power applied. Should reduce power as we get close
 		// to the target encoder value.
@@ -129,12 +131,14 @@ public class AutoDrive extends CommandBase
 		{
 			elapsedTime = Util.getElaspedTime();
 			
-			pidController.calculate(getEncoderCounts(), elapsedTime);
+			pidController.calculate(getEncoderCount(), elapsedTime);
 			
 			power = pidController.get();
 			
-			Util.consoleLog("error=%.2f  power2=%.2f  time=%f", pidController.getError(), power, elapsedTime);
+			Util.consoleLog("error=%.2f  power=%.2f  time=%f", pidController.getError(), power, elapsedTime);
 		}
+		else
+			Util.consoleLog("tgt=%d  act=%d", encoderCount, Math.abs(getEncoderCount()));
 
 		// Yaw angle is negative if robot veering left, positive if veering right when going forward.
 		
@@ -162,21 +166,23 @@ public class AutoDrive extends CommandBase
 		
 		if (stop == StopMotors.stop) driveBase.stop();
 		
-		Util.consoleLog("end: actual count=%d  error=%.3f", Math.abs(getEncoderCounts()), 
-				(double) Math.abs(getEncoderCounts()) / encoderCounts);
+		double actualCount = Math.abs(getEncoderCount());
+		
+		Util.consoleLog("end: actual count=%d  error=%.3f%", actualCount, 
+				(actualCount - encoderCount) / encoderCount * 100);
 	}
 	
 	@Override
 	public boolean isFinished() 
 	{
-		return Math.abs(getEncoderCounts()) >= encoderCounts;	
+		return Math.abs(getEncoderCount()) >= encoderCount;	
 	}
 	
 	/** 
 	 *Average left and right encoder counts to see how far robot has moved.
 	 * @return Average encoder counts.
 	 */
-	public  int getEncoderCounts()
+	public  int getEncoderCount()
 	{
 		return (driveBase.leftEncoder.get() + driveBase.rightEncoder.get()) / 2;
 	}

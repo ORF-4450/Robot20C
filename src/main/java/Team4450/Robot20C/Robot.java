@@ -160,6 +160,8 @@ public class Robot extends TimedRobot
   public void autonomousInit() 
   {
 	  Util.consoleLog();
+	  
+	  LCD.clearAll();
       
 	  LCD.printLine(LCD_1, "Mode: Auto - No Program");
 
@@ -198,6 +200,8 @@ public class Robot extends TimedRobot
 	  
 	  robotContainer.getMatchInformation();
       
+	  LCD.clearAll();
+	  
 	  LCD.printLine(LCD_1, "Mode: teleop  All=%s, Start=%d, FMS=%b, msg=%s", alliance.name(), location, 
 			  ds.isFMSAttached(), gameMessage);
 
@@ -233,6 +237,8 @@ public class Robot extends TimedRobot
   public void testInit() 
   {
 	  Util.consoleLog();
+	  
+	  LCD.clearAll();
 	  
 	  // Cancels all running commands at the start of test mode.
 	  

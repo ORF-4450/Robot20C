@@ -36,6 +36,7 @@ public class DriveBase extends SubsystemBase
 	private boolean					talonBrakeMode, lowSpeed, highSpeed;
 	
 	private double					cumulativeLeftCount = 0, cumulativeRightCount = 0;
+	private double					lastLeftCount = 0, lastRightCount = 0;
 	
 	/**
 	 * Creates a new DriveBase Subsystem.
@@ -129,7 +130,7 @@ public class DriveBase extends SubsystemBase
 		odometer = new DifferentialDriveOdometry(RobotContainer.navx.getTotalYaw2d());
 	}
 	
-	// This method will be called once per scheduler run.
+	// This method will be called once per scheduler run by the scheduler.
 	@Override
 	public void periodic() 
 	{
@@ -138,8 +139,14 @@ public class DriveBase extends SubsystemBase
 		// driving functions like auto drive, alt driving mode and more. Odometer wants counts
 		// as total since start of match or last odometer reset.		
 		
-		cumulativeLeftCount += leftEncoder.getDistance(DistanceUnit.Meters);
-		cumulativeRightCount += rightEncoder.getDistance(DistanceUnit.Meters);
+		double left = leftEncoder.getDistance(DistanceUnit.Meters);
+		double right = rightEncoder.getDistance(DistanceUnit.Meters);
+		
+		cumulativeLeftCount += left - lastLeftCount;
+		cumulativeRightCount += right - lastRightCount;
+		
+		lastLeftCount = left;
+		lastRightCount = right;
 		
 		odometer.update(RobotContainer.navx.getTotalYaw2d(), cumulativeLeftCount, cumulativeRightCount);
 	}
