@@ -12,6 +12,7 @@ import Team4450.Lib.MonitorPDP;
 import Team4450.Lib.NavX;
 import Team4450.Lib.Util;
 import Team4450.Lib.JoyStick.JoyStickButtonIDs;
+
 import edu.wpi.first.wpilibj.AnalogInput;
 import edu.wpi.first.wpilibj.Compressor;
 import edu.wpi.first.wpilibj.Joystick;
@@ -20,12 +21,12 @@ import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SendableRegistry;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.ConditionalCommand;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
+
 import Team4450.Robot20C.commands.Climb;
 import Team4450.Robot20C.commands.Drive;
-import Team4450.Robot20C.commands.NotifierCommand2;
+import Team4450.Robot20C.commands.NotifierCommand;
 import Team4450.Robot20C.commands.ShiftGears;
 import Team4450.Robot20C.commands.TestAuto;
 import Team4450.Robot20C.commands.TestAuto1;
@@ -269,7 +270,7 @@ public class RobotContainer
 		new JoystickButton(utilityStick.getJoyStick(), JoyStick.JoyStickButtonIDs.TOP_BACK.value)
         	//.whenPressed(new PickupDeploy(pickup));		
 			//.whenPressed(new InstantCommand(pickup::toggleDeploy, pickup));
-			.whenPressed(new NotifierCommand2(pickup::toggleDeploy, 0.0, pickup));
+			.whenPressed(new NotifierCommand(pickup::toggleDeploy, 0.0, pickup));
 		
 		// -------- Launch pad buttons -------------
 		

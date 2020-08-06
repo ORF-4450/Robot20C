@@ -20,7 +20,7 @@ import edu.wpi.first.wpilibj2.command.Subsystem;
  * code thread-safe.  If you do not know what "thread-safe" means, that is a good sign that
  * you should not use this class.
  */
-public class NotifierCommand2 extends CommandBase 
+public class NotifierCommand extends CommandBase 
 {
   protected final Notifier m_notifier;
   protected final double 	m_period;
@@ -33,7 +33,7 @@ public class NotifierCommand2 extends CommandBase
    *                     runs the runnable one time then the command ends.
    * @param requirements The subsystems required by this command.
    */
-  public NotifierCommand2(Runnable toRun, double period, Subsystem... requirements) 
+  public NotifierCommand(Runnable toRun, double period, Subsystem... requirements) 
   {
 	  m_notifier = new Notifier(toRun);
 	  m_period = period;

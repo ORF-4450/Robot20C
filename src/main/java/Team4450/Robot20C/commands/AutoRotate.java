@@ -1,13 +1,10 @@
 package Team4450.Robot20C.commands;
 
-import Team4450.Lib.LCD;
 import Team4450.Lib.SynchronousPID;
 import Team4450.Lib.Util;
 
-import static Team4450.Robot20C.Constants.*;
 import Team4450.Robot20C.RobotContainer;
 import Team4450.Robot20C.subsystems.DriveBase;
-import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 
 public class AutoRotate extends CommandBase
@@ -15,7 +12,7 @@ public class AutoRotate extends CommandBase
 	private final DriveBase driveBase;
 
 	private double			yaw, elapsedTime = 0, power, target; 
-	private double			kP = .02, kI = 0.003, kD = 0.001, kTolerance = 1.0, kSteeringGain = .10;
+	private double			kP = .02, kI = 0.002, kD = 0, kTolerance = 1.0, kSteeringGain = .10;
 	private boolean			usePid,	useHeading;
 	
 	SynchronousPID			pidController = null;
@@ -55,7 +52,10 @@ public class AutoRotate extends CommandBase
 		this.target = target;
 		this.usePid = usePid;
 		this.useHeading = useHeading;
-		
+
+		kP = power / target;
+		kI = kP /100;
+
 		addRequirements(this.driveBase);
 	}
 	
@@ -93,7 +93,7 @@ public class AutoRotate extends CommandBase
 			
 			if (useHeading)
 				pidController.setSetpoint(0);		// We are trying to get the yaw to zero.
-			else
+			else				
 				pidController.setSetpoint(target);	// We are trying to get to the target yaw.
 			
 			// The PID class needs delta time between calls to calculate the I term.

@@ -15,7 +15,7 @@ public class AutoDrive extends CommandBase
 	private double			yaw, kSteeringGain = .10, elapsedTime = 0;
 	private double			kP = .00015, kI = 0.000015, kD = 0.0;
 	private double			power; 
-	private int 			encoderCount; 
+	private int 			encoderCounts; 
 	private StopMotors 		stop;
 	private Brakes 			brakes;
 	private Pid 			pid;
@@ -60,11 +60,14 @@ public class AutoDrive extends CommandBase
 		if (encoderCounts <= 0) throw new IllegalArgumentException("Encoder counts < 1");
 			  
 		this.power = power;
-		this.encoderCount = encoderCounts;
+		this.encoderCounts = encoderCounts;
 		this.stop = stop;
 		this.brakes = brakes;
 		this.pid = pid;
 		this.heading = heading;
+		
+		kP = power / encoderCounts;
+		kI = kP / 100;
 		
 		addRequirements(this.driveBase);
 	}
@@ -100,12 +103,12 @@ public class AutoDrive extends CommandBase
 			
 			if (power < 0)
 			{
-				pidController.setSetpoint(-encoderCount);
+				pidController.setSetpoint(-encoderCounts);
 				pidController.setOutputRange(power, 0);
 			}
 			else
 			{
-				pidController.setSetpoint(encoderCount);
+				pidController.setSetpoint(encoderCounts);
 				pidController.setOutputRange(0, power);
 			}
 
@@ -120,7 +123,7 @@ public class AutoDrive extends CommandBase
 	{
 		Util.consoleLog();
 		
-		LCD.printLine(LCD_4, "Auto wheel encoder avg=%d", getEncoderCount());
+		LCD.printLine(LCD_4, "Auto wheel encoder avg=%d", getEncoderCounts());
 
 		// Use PID to determine the power applied. Should reduce power as we get close
 		// to the target encoder value.
@@ -129,14 +132,14 @@ public class AutoDrive extends CommandBase
 		{
 			elapsedTime = Util.getElaspedTime();
 			
-			power = pidController.calculate(getEncoderCount(), elapsedTime);
+			power = pidController.calculate(getEncoderCounts(), elapsedTime);
 			
 			//power = pidController.get();
 			
 			Util.consoleLog("error=%.2f  power=%.2f  time=%f", pidController.getError(), power, elapsedTime);
 		}
 		else
-			Util.consoleLog("tgt=%d  act=%d", encoderCount, Math.abs(getEncoderCount()));
+			Util.consoleLog("tgt=%d  act=%d", encoderCounts, Math.abs(getEncoderCounts()));
 
 		// Yaw angle is negative if robot veering left, positive if veering right when going forward.
 		
@@ -164,23 +167,23 @@ public class AutoDrive extends CommandBase
 		
 		if (stop == StopMotors.stop) driveBase.stop();
 		
-		double actualCount = Math.abs(getEncoderCount());
+		double actualCount = Math.abs(getEncoderCounts());
 		
 		Util.consoleLog("end: actual count=%d  error=%.3f%", actualCount, 
-				(actualCount - encoderCount) / encoderCount * 100);
+				(actualCount - encoderCounts) / encoderCounts * 100);
 	}
 	
 	@Override
 	public boolean isFinished() 
 	{
-		return Math.abs(getEncoderCount()) >= encoderCount;	
+		return Math.abs(getEncoderCounts()) >= encoderCounts;	
 	}
 	
 	/** 
 	 *Average left and right encoder counts to see how far robot has moved.
 	 * @return Average encoder counts.
 	 */
-	public  int getEncoderCount()
+	public  int getEncoderCounts()
 	{
 		return (driveBase.leftEncoder.get() + driveBase.rightEncoder.get()) / 2;
 	}
