@@ -31,12 +31,12 @@ public class DriveBase extends SubsystemBase
 	// SRX magnetic encoder plugged into a CAN Talon.
 	public SRXMagneticEncoderRelative	leftEncoder, rightEncoder;
 
-	private ValveDA					highLowValve = new ValveDA(HIGHLOW_VALVE);
+	private ValveDA				highLowValve = new ValveDA(HIGHLOW_VALVE);
 
-	private boolean					talonBrakeMode, lowSpeed, highSpeed;
+	private boolean				talonBrakeMode, lowSpeed, highSpeed;
 	
-	private double					cumulativeLeftCount = 0, cumulativeRightCount = 0;
-	private double					lastLeftCount = 0, lastRightCount = 0;
+	private double				cumulativeLeftCount = 0, cumulativeRightCount = 0;
+	private double				lastLeftCount = 0, lastRightCount = 0;
 	
 	/**
 	 * Creates a new DriveBase Subsystem.
@@ -66,9 +66,6 @@ public class DriveBase extends SubsystemBase
 		// velocity tank.
 		RFCanTalon.setInverted(true);
 		RRCanTalon.setInverted(true);
-
-		// 2018 post season testing showed Anakin liked this setting, smoothing driving.
-		SetCANTalonRampRate(TALON_RAMP_RATE);
 		  
 		// Configure SRX encoders as needed for measuring velocity and distance. 
 		// Wheel diameter is in inches. Adjust for each years robot.
@@ -171,6 +168,8 @@ public class DriveBase extends SubsystemBase
 	public void tankDrive(double leftSpeed, double rightSpeed, boolean squaredInputs)
 	{
 		robotDrive.tankDrive(leftSpeed, rightSpeed, squaredInputs);
+		
+		Util.consoleLog("l=%.2f m=%.2f  r=%.2f m=%.2f", leftSpeed, LRCanTalon.get(), rightSpeed, RRCanTalon.get());
 	}
 	
 	/**
@@ -338,7 +337,7 @@ public class DriveBase extends SubsystemBase
 	 * matter and other times it can really mess things up if you reset encoder but at the time
 	 * you next read the encoder for a measurement (like in autonomous programs) the encoder has
 	 * not yet been reset and returns the previous count. This method resets and delays 112ms
-	 * which testing seemed to show would cause an immediate read of the reset encoder to return
+	 * which testing seemed to show would cause the next read of the reset encoder to return
 	 * zero.
 	 */
 	public void resetEncodersWithDelay()
@@ -412,5 +411,32 @@ public class DriveBase extends SubsystemBase
 		
 		cumulativeLeftCount = 0;
 		cumulativeRightCount = 0;
+	}
+	
+	/** 
+	 * Average left and right encoder counts to see how far robot has moved.
+	 * @return Average of left & right encoder counts.
+	 */
+	public int getAvgEncoder()
+	{
+		return (leftEncoder.get() + rightEncoder.get()) / 2;
+	}
+	
+	/** 
+	 * Left encoder counts.
+	 * @return Left encoder counts.
+	 */
+	public int getLeftEncoder()
+	{
+		return leftEncoder.get();
+	}
+	
+	/** 
+	 * Left encoder counts.
+	 * @return Left encoder counts.
+	 */
+	public int getRightEncoder()
+	{
+		return rightEncoder.get();
 	}
 }

@@ -20,15 +20,17 @@ public class TestAuto1 extends CommandBase
 	private Command					command = null;
 
 	/**
-	 * Creates a new TestAuto1 autonomous command.
+	 * Creates a new TestAuto1 autonomous command. This command demonstrates one
+	 * possible structure for an autonomous command and shows the use of the 
+	 * autonomous driving support commands.
 	 *
-	 * @param subsystem The subsystem used by this command.
+	 * @param driveBase DriveBase subsystem used by this command to drive the robot.
 	 */
-	public TestAuto1(DriveBase subsystem) 
+	public TestAuto1(DriveBase driveBase) 
 	{
 		Util.consoleLog();
 		
-		driveBase = subsystem;
+		this.driveBase = driveBase;
 			  
 		// Use addRequirements() here to declare subsystem dependencies.
 		addRequirements(this.driveBase);
@@ -78,7 +80,7 @@ public class TestAuto1 extends CommandBase
 		
 		command = new AutoDrive(driveBase, .50, 10000, 
 								AutoDrive.StopMotors.stop,
-								AutoDrive.Brakes.off,
+								AutoDrive.Brakes.on,
 								AutoDrive.Pid.on,
 								AutoDrive.Heading.angle);
 		
@@ -86,13 +88,21 @@ public class TestAuto1 extends CommandBase
 		
 		// Next action is to rotate 180 degrees right.
 		
-		command = new AutoRotate(driveBase, .25, 180, false, false);
+		command = new AutoRotate(driveBase, .25, 180, AutoDrive.Pid.on, AutoDrive.Heading.angle);
 		
-		commands.addCommands(command);
+		//commands.addCommands(command);
 		
 		// Next action is to drive back same encoder counts and stop with brakes on.
 		
-		command = new AutoDrive(driveBase, .50, 10000, 
+		command = new AutoDrive(driveBase, -.50, 10000, 
+								AutoDrive.StopMotors.stop,
+								AutoDrive.Brakes.on,
+								AutoDrive.Pid.on,
+								AutoDrive.Heading.angle);
+		
+		//commands.addCommands(command);
+		
+		command = new AutoCurve(driveBase, .25, .50, 90,
 								AutoDrive.StopMotors.stop,
 								AutoDrive.Brakes.on,
 								AutoDrive.Pid.on,

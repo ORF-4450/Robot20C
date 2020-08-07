@@ -4,6 +4,8 @@ import Team4450.Lib.SynchronousPID;
 import Team4450.Lib.Util;
 
 import Team4450.Robot20C.RobotContainer;
+import Team4450.Robot20C.commands.AutoDrive.Heading;
+import Team4450.Robot20C.commands.AutoDrive.Pid;
 import Team4450.Robot20C.subsystems.DriveBase;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 
@@ -13,7 +15,9 @@ public class AutoRotate extends CommandBase
 
 	private double			yaw, elapsedTime = 0, power, target; 
 	private double			kP = .02, kI = 0.002, kD = 0, kTolerance = 1.0, kSteeringGain = .10;
-	private boolean			usePid,	useHeading;
+	//private boolean			usePid,	useHeading;
+	private Pid 			pid;
+	private Heading 		heading;
 	
 	SynchronousPID			pidController = null;
 	
@@ -23,38 +27,37 @@ public class AutoRotate extends CommandBase
 	 * Auto rotate the specified target angle from where the robot is currently pointing or rotate
 	 * to a target heading.
 	 * 
-	 * @param subsystem The subsystem used by this command.
+	 * @param driveBase The DriveBase subsystem used by this command to drive the robot.
 	 * @param power Max power for rotation. Power is always +.
 	 * @param target Target angle (-left, +right) to rotate from robot current direction -180..+180, or 
 	 * target heading (0..359) to rotate to from robot current heading. Target heading is always + and cannot be more 
 	 * than 180 degrees away from current heading.
-	 * @param usePid False for simple rotation, true use PID controller to manage the rotation slowing rotation as
+	 * @param pid Off for simple rotation, On use PID controller to manage the rotation slowing rotation as
 	 * target is reached.
-	 * @param useHeading False target is an angle, true target is a heading.
+	 * @param heading Off target is an angle, On target is a heading.
 	 * 
 	 * Note: This routine is designed for tank drive and the P,I,D,tolerance values will likely need adjusting for each
 	 * new drive base as gear ratios and wheel configuration may require different values to turn smoothly
 	 * and accurately.
 	 */
-	public AutoRotate(DriveBase subsystem, 
-					  double power, 
-					  double target, 
-					  boolean usePid, 
-					  boolean useHeading)
+	public AutoRotate(DriveBase driveBase, 
+					  double 	power, 
+					  double 	target, 
+					  Pid 		pid, 
+					  Heading 	heading)
 	{
-		driveBase = subsystem;
+		this.driveBase = driveBase;
 		
-		Util.consoleLog("pwr=%.2f  target=%.2f  pid=%b  hdg=%b", power, target, usePid, useHeading);
+		Util.consoleLog("pwr=%.2f  target=%.2f  pid=%s  hdg=%s", power, target, pid, heading);
 		
 		if (power <= 0) throw new IllegalArgumentException("power must be +");
 			  
 		this.power = power;
 		this.target = target;
-		this.usePid = usePid;
-		this.useHeading = useHeading;
-
-		kP = power / target;
-		kI = kP /100;
+		this.pid = pid;
+		this.heading = heading;
+		
+		Util.consoleLog("kP=%.5f  kI=%.5f", kP, kI);
 
 		addRequirements(this.driveBase);
 	}
@@ -70,7 +73,7 @@ public class AutoRotate extends CommandBase
 
 		// Reset yaw to current robot direction or target heading.
 		
-		if (useHeading) 
+		if (heading == Heading.heading) 
 		{
 			Util.checkRange(target, 0, 359, "target");
 			
@@ -83,7 +86,7 @@ public class AutoRotate extends CommandBase
 			RobotContainer.navx.resetYawWait(1, 500);
 		}
 		
-		if (usePid)
+		if (pid == Pid.on)
 		{
 			// Use PID to control power as we turn slowing as we approach target heading.
 			
@@ -91,7 +94,7 @@ public class AutoRotate extends CommandBase
 			
 			pidController.setOutputRange(-power , power);
 			
-			if (useHeading)
+			if (heading == Heading.heading)
 				pidController.setSetpoint(0);		// We are trying to get the yaw to zero.
 			else				
 				pidController.setSetpoint(target);	// We are trying to get to the target yaw.
@@ -100,7 +103,7 @@ public class AutoRotate extends CommandBase
 			
 			Util.getElaspedTime();
 		}
-		else if (useHeading)			// Simple turn, full power until target heading reached.
+		else if (heading == Heading.heading)			// Simple turn, full power until target heading reached.
 		{
 			yaw = RobotContainer.navx.getHeadingYaw();
 
@@ -119,9 +122,9 @@ public class AutoRotate extends CommandBase
 	{
 		Util.consoleLog();
 		
-		if (usePid)
+		if (pid == Pid.on)
 		{
-			if (useHeading)
+			if (heading == Heading.heading)
 				yaw = RobotContainer.navx.getHeadingYaw();
 			else
 				yaw = RobotContainer.navx.getYaw();
@@ -137,8 +140,6 @@ public class AutoRotate extends CommandBase
 			
 			power = pidController.calculate(yaw, elapsedTime);
 			
-			//power = pid.get();
-			
 			// When quick turn is true, first parameter is not used, power is fed to the
 			// rate of turn parameter. PID controller takes care of the sign, that 
 			// is the left/right direction of the turn.
@@ -148,7 +149,7 @@ public class AutoRotate extends CommandBase
 			Util.consoleLog("power=%.2f  hdg=%.2f  yaw=%.2f  err=%.2f  time=%f", power, 
 							 RobotContainer.navx.getHeading(), yaw, pidController.getError(), elapsedTime); 
 		}
-		else if (useHeading)
+		else if (heading == Heading.heading)
 		{
 			driveBase.curvatureDrive(0, power, true);
 			
@@ -187,44 +188,11 @@ public class AutoRotate extends CommandBase
 	@Override
 	public boolean isFinished() 
 	{
-		if (usePid)
+		if (pid == Pid.on)
 			return pidController.onTarget(kTolerance);			
-		else if (useHeading)
+		else if (heading == Heading.heading)
 			return Util.checkRange(yaw, 1.0);
 		else 
 			return Math.abs(yaw) >= Math.abs(target);
 	}
-	
-	/** 
-	 *Average left and right encoder counts to see how far robot has moved.
-	 * @return Average encoder counts.
-	 */
-	public  int getEncoderCount()
-	{
-		return (driveBase.leftEncoder.get() + driveBase.rightEncoder.get()) / 2;
-	}
-	
-	public enum Brakes
-	{
-		off,
-		on
-	}
-	
-	public enum Pid
-	{
-		off,
-		on
-	}
-	
-	public enum Heading
-	{
-		angle,
-		heading
-	}
-	
-	public enum StopMotors
-	{
-		dontStop,
-		stop
-	}	
 }

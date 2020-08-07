@@ -66,6 +66,13 @@ public class Drive extends CommandBase
 	  Util.consoleLog();
 	  
 	  driveBase.setMotorSafety(true); 	// Turn on watchdog.
+
+	  // 2018 post season testing showed this setting helps smooth out driving response.
+	  // Set here because auto programs may set their own rate. We combine this with
+	  // squared input on drive methods to try to reduce how jerky and touchy the 
+	  // robot can be.
+	  
+	  driveBase.SetCANTalonRampRate(TALON_RAMP_RATE);
   }
 
   /** 
@@ -79,7 +86,7 @@ public class Drive extends CommandBase
   {
 	  double leftY = leftSpeed.getAsDouble(), rightY = rightSpeed.getAsDouble(), angle;
 	  
-	  LCD.printLine(LCD_2, "leftenc=%d  rightenc=%d", driveBase.leftEncoder.get(), driveBase.rightEncoder.get());			
+	  LCD.printLine(LCD_2, "leftenc=%d  rightenc=%d", driveBase.getLeftEncoder(), driveBase.getRightEncoder());			
 
 	  LCD.printLine(LCD_3, "leftY=%.3f (%.3f)  rightY=%.3f (%.3f)", leftY, 
 				 driveBase.getLeftPower(), rightY, driveBase.getRightPower());

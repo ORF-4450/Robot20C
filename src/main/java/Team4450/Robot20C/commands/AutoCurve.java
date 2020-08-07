@@ -4,6 +4,7 @@ import Team4450.Lib.SynchronousPID;
 import Team4450.Lib.Util;
 import Team4450.Robot20C.RobotContainer;
 import Team4450.Robot20C.subsystems.DriveBase;
+import Team4450.Robot20C.commands.AutoDrive.*;
 
 import edu.wpi.first.wpilibj2.command.CommandBase;
 
@@ -11,7 +12,7 @@ public class AutoCurve extends CommandBase
 {
 	private final DriveBase driveBase;
 
-	private double			kP = .04, kI = 0.003, kD = 0.0, kTolerance= 1.0;
+	private double			kP = .04, kI = 0.004, kD = 0.0, kTolerance= 1.0;
 	private double			elapsedTime, yaw = 0, originalCurve, power, curve, target;
 	private StopMotors 		stop;
 	private Brakes 			brakes;
@@ -23,8 +24,9 @@ public class AutoCurve extends CommandBase
 	/**
 	 * Automatically drive in a curve.
 	 * 
+	 * @param driveBase The DriveBase subsystem used by this command to drive the robot.
 	 * @param power Speed to drive, + is forward.
-	 * @param curve Speed of rotation 0..1..0, always +.
+	 * @param curve Speed of rotation 0..1, always +.
 	 * @param target Target angle to turn. If not using heading, this is 0..180, - left, + right. If using heading
 	 * this is the target heading 0..359.
 	 * @param stop Stop stops motors at end of curve, dontStop leaves power on to flow into next move.
@@ -37,7 +39,7 @@ public class AutoCurve extends CommandBase
 	 * new drive base as gear ratios and wheel configuration may require different values to stop smoothly
 	 * and accurately.
 	 */
-	public AutoCurve(DriveBase subsystem,
+	public AutoCurve(DriveBase driveBase,
 					 double power, 
 					 double curve, 
 					 double target, 
@@ -46,7 +48,7 @@ public class AutoCurve extends CommandBase
 					 Pid pid, 
 					 Heading heading)
 	{	
-		driveBase = subsystem;
+		this.driveBase = driveBase;
 
 		Util.consoleLog("pwr=%.2f  curve=%.2f  target=%.2f  stop=%s  brakes=%s  pid=%s  hdg=%s", 
 						power, curve, target, stop, brakes, pid, heading);
@@ -63,9 +65,11 @@ public class AutoCurve extends CommandBase
 		this.pid = pid;
 		this.heading = heading;
 		
-		kP = power / target;
-		kI = kP / 100;
+		//kP = Math.abs(power) / curve;
+		//kI = kP / 100.0;
 		
+		Util.consoleLog("kP=%.5f  kI=%.5f", kP, kI);
+
 		addRequirements(this.driveBase);
 	}
 	
@@ -147,9 +151,7 @@ public class AutoCurve extends CommandBase
 			// approaches zero. So our turn should slow and not overshoot. If
 			// it does, the PID controller will reverse curve and turn it back.
 			
-			pidController.calculate(yaw, elapsedTime);
-			
-			curve = pidController.get();
+			curve = pidController.calculate(yaw, elapsedTime);
 			
 			// When quick turn is false, power is constant, curve is fed to the
 			// rate of turn parameter. PID controller takes care of the sign, that 
@@ -165,8 +167,7 @@ public class AutoCurve extends CommandBase
 			driveBase.curvatureDrive(power2, curve, false);
 			
 			Util.consoleLog("power=%.2f  hdg=%.2f  yaw=%.2f  curve=%.2f  err=%.2f  time=%f", power2, 
-					RobotContainer.navx.getHeading(), yaw, curve, pidController.getError(), elapsedTime);
-			
+					RobotContainer.navx.getHeading(), yaw, curve, pidController.getError(), elapsedTime);			
 		}
 		else if (heading == Heading.heading)		// Simple turn, full curve until target heading reached.
 		{
@@ -180,10 +181,11 @@ public class AutoCurve extends CommandBase
 		{
 			driveBase.curvatureDrive(power, curve, false);
 			
-			Util.consoleLog("yaw=%.2f  hdg=%.2f  curve=%.2f", yaw, RobotContainer.navx.getHeading(), curve);
+			Util.consoleLog("power=%.2f  yaw=%.2f  hdg=%.2f  curve=%.2f", power, yaw, 
+							RobotContainer.navx.getHeading(), curve);
 			
 			yaw = RobotContainer.navx.getYaw();
-	}		
+		}		
 	}
 	
 	@Override
@@ -222,28 +224,4 @@ public class AutoCurve extends CommandBase
 			return Math.abs(yaw) >= Math.abs(target);
 		}		
 	}
-	
-	public enum Brakes
-	{
-		off,
-		on
-	}
-	
-	public enum Pid
-	{
-		off,
-		on
-	}
-	
-	public enum Heading
-	{
-		angle,
-		heading
-	}
-	
-	public enum StopMotors
-	{
-		dontStop,
-		stop
-	}		
 }
