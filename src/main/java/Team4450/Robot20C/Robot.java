@@ -53,8 +53,8 @@ public class Robot extends TimedRobot
 		
 		  Util.consoleLog("RobotLib=%s", LibraryVersion.version);
 		  
-		  // This is a test to see if we can eliminate LW overhead when not using it.
-		  LiveWindow.setEnabled(false);
+		  // Eliminate LW overhead when not using it.
+		  LiveWindow.disableAllTelemetry();
 		  
 		  // Create SendableVersion object so it can be sent to the dashboard and also
 		  // log some of it's information.
@@ -179,6 +179,8 @@ public class Robot extends TimedRobot
 	  // schedule the autonomous command (example)
 	  
 	  if (autonomousCommand != null) autonomousCommand.schedule();
+	  
+	  Util.consoleLog("-------------------------------------------------------------------------");
   }
 
   /**
@@ -212,6 +214,8 @@ public class Robot extends TimedRobot
 	  
 	  // Driving handled by DriveCommand which is default command for the DriveBase.
 	  // Other commands scheduled by joystick buttons.
+	  
+	  Util.consoleLog("-------------------------------------------------------------------------");
   }
 
   /**

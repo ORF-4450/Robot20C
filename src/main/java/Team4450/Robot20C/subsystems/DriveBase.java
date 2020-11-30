@@ -169,7 +169,7 @@ public class DriveBase extends SubsystemBase
 	{
 		robotDrive.tankDrive(leftSpeed, rightSpeed, squaredInputs);
 		
-		Util.consoleLog("l=%.2f m=%.2f  r=%.2f m=%.2f", leftSpeed, LRCanTalon.get(), rightSpeed, RRCanTalon.get());
+		//Util.consoleLog("l=%.2f m=%.2f  r=%.2f m=%.2f", leftSpeed, LRCanTalon.get(), rightSpeed, RRCanTalon.get());
 	}
 	
 	/**
