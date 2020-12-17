@@ -13,9 +13,10 @@ import Team4450.Lib.ValveDA;
 import Team4450.Lib.SRXMagneticEncoderRelative.DistanceUnit;
 
 import Team4450.Robot20C.RobotContainer;
-
+import edu.wpi.first.wpilibj.SlewRateLimiter;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
 import edu.wpi.first.wpilibj.geometry.Pose2d;
+import edu.wpi.first.wpilibj.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.kinematics.DifferentialDriveOdometry;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -38,6 +39,9 @@ public class DriveBase extends SubsystemBase
 	private double				cumulativeLeftCount = 0, cumulativeRightCount = 0;
 	private double				lastLeftCount = 0, lastRightCount = 0;
 	
+	private SlewRateLimiter		leftLimiter = new SlewRateLimiter(0.5);
+	private SlewRateLimiter		rightLimiter = new SlewRateLimiter(0.5);
+
 	/**
 	 * Creates a new DriveBase Subsystem.
 	 */
@@ -110,7 +114,7 @@ public class DriveBase extends SubsystemBase
 		// to RobotPeriodic(). Note that the FIRST lower level code also runs a watchdog
 		// on each execution of the .02 sec loop and will raise a warning if your
 		// code takes more than .02 sec to complete. It may be hard to stay under
-		// that time. When it trips, the watchdog will print to  the console somewhat
+		// that time. When it trips, the watchdog will print to the console some somewhat
 		// useful information to help determine where the time is being used. This 
 		// watchdog timeout cannot be set or turned off.
    		
@@ -124,7 +128,19 @@ public class DriveBase extends SubsystemBase
 		
 		lowSpeed();
 		
+		// Create an odometer object to track the robot's movements.
+		
 		odometer = new DifferentialDriveOdometry(RobotContainer.navx.getTotalYaw2d());
+		
+		// Set robot initial position. This is normally set in an auto routine that
+		// starts a match at a particular location and angle. If there is no auto
+		// defining an initial position, then pose tracking is difficult because it
+		// has to start from a known position. If you start in teleop, you would need
+		// to define a fixed starting location or perhaps compute it depending on which
+		// driver station location and always start in the same place relative to the
+		// station.
+		
+		resetOdometer(new Pose2d(INITIAL_X, INITIAL_Y, new Rotation2d()), INITIAL_HEADING);
 	}
 	
 	// This method will be called once per scheduler run by the scheduler.
@@ -168,6 +184,21 @@ public class DriveBase extends SubsystemBase
 	public void tankDrive(double leftSpeed, double rightSpeed, boolean squaredInputs)
 	{
 		robotDrive.tankDrive(leftSpeed, rightSpeed, squaredInputs);
+		
+		//Util.consoleLog("l=%.2f m=%.2f  r=%.2f m=%.2f", leftSpeed, LRCanTalon.get(), rightSpeed, RRCanTalon.get());
+	}
+	
+	/**
+	 * Tank drive function. Passes left/right speed values to the robot drive.
+	 * Should be called every scheduler run by the Drive command. Uses SlewRateLimiter
+	 * filter to modulate inputs to smooth out power delivery. Testing did not show any
+	 * advantage over squared inputs but will keep this routine for now.
+	 * @param leftSpeed Left power setting -1.0 to +1.0.
+	 * @param rightSpeed RIght power setting -1.0 to +1.0.
+	 */
+	public void tankDriveLimited(double leftSpeed, double rightSpeed)
+	{
+		robotDrive.tankDrive(leftLimiter.calculate(leftSpeed), rightLimiter.calculate(rightSpeed), false);
 		
 		//Util.consoleLog("l=%.2f m=%.2f  r=%.2f m=%.2f", leftSpeed, LRCanTalon.get(), rightSpeed, RRCanTalon.get());
 	}
@@ -402,12 +433,14 @@ public class DriveBase extends SubsystemBase
 	}
 	
 	/**
-	 * Reset odometer to new position and cumulative angle.
+	 * Reset odometer to new position and cumulative angle. Pose x,y distances
+	 * in meters, as described in getOdometerPose() doc.
 	 * @param pose New starting pose.
+	 * @param heading Heading of robot (cumulative angle).
 	 */
-	public void resetOdometer(Pose2d pose)
+	public void resetOdometer(Pose2d pose, double heading)
 	{
-		odometer.resetPosition(pose, pose.getRotation());
+		odometer.resetPosition(pose, Rotation2d.fromDegrees(heading));
 		
 		cumulativeLeftCount = 0;
 		cumulativeRightCount = 0;

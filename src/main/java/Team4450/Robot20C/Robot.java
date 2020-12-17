@@ -29,6 +29,8 @@ public class Robot extends TimedRobot
   @Override
   public void robotInit()
   {
+	  robot = this;
+	  
 	  try
 	  {
 	   	  LCD.clearAll();
@@ -49,10 +51,6 @@ public class Robot extends TimedRobot
 			   }
 		  });
 		
-		  Util.consoleLog(PROGRAM_NAME);
-		
-		  Util.consoleLog("RobotLib=%s", LibraryVersion.version);
-		  
 		  // Eliminate LW overhead when not using it.
 		  LiveWindow.disableAllTelemetry();
 		  
@@ -61,13 +59,20 @@ public class Robot extends TimedRobot
 			
 		  SendableVersion.INSTANCE.init(PROGRAM_NAME);
 			
-		  Util.consoleLog("compiled by %s at %s (branch=%s, commit=%s)", SendableVersion.INSTANCE.getUser(),
-					SendableVersion.INSTANCE.getTime(), SendableVersion.INSTANCE.getBranch(),
+		  Util.consoleLog("%s compiled by %s at %s (branch=%s, commit=%s)", 
+			  		SendableVersion.INSTANCE.getProgramVersion(),
+			  		SendableVersion.INSTANCE.getUser(),
+					SendableVersion.INSTANCE.getTime(), 
+					SendableVersion.INSTANCE.getBranch(),
 					SendableVersion.INSTANCE.getCommit());
 
 		  // Send program version to the dashboard.
-	   		
+		   		
 		  SmartDashboard.putString("Program", PROGRAM_NAME);
+
+		  // Log RobotLib version we are using.			
+		  
+		  Util.consoleLog("RobotLib=%s", LibraryVersion.version);
 		  
 		  // Note: Any Sendables added to SmartDashboard or Shuffleboard are sent to the DS on every
 		  // loop of a TimedRobot. In this case it means that the SendableVersion data would be sent
@@ -109,6 +114,8 @@ public class Robot extends TimedRobot
 	  // when robot is disabled. This seems a bad idea...
 	  
 	  CommandScheduler.getInstance().run();
+	  
+	  if (isEnabled()) LCD.sendLine(LCD_9);
   }
 
   /**

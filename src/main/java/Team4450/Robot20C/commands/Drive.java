@@ -4,7 +4,7 @@ package Team4450.Robot20C.commands;
 import java.util.function.DoubleSupplier;
 
 import static Team4450.Robot20C.Constants.*;
-import static Team4450.Robot20C.RobotContainer.*;
+import Team4450.Robot20C.RobotContainer;
 import Team4450.Lib.LCD;
 import Team4450.Lib.Util;
 import Team4450.Lib.SRXMagneticEncoderRelative.PIDRateType;
@@ -97,8 +97,10 @@ public class Drive extends CommandBase
 	  
 	  Pose2d pose = driveBase.getOdometerPose();
 	  
-	  LCD.printLine(LCD_8, "pose x=%.1fm  y=%.1fm  deg=%.1f", pose.getTranslation().getX(), pose.getTranslation().getY(),
-				pose.getRotation().getDegrees());
+	  LCD.printLine(LCD_8, "pose x=%.1fm  y=%.1fm  deg=%.1f  balleye=%b ", pose.getTranslation().getX(), pose.getTranslation().getY(),
+				pose.getRotation().getDegrees(), RobotContainer.pickup.getBallEye());
+	  
+	  LCD.set(LCD_9, 1, "this is a test line");
 	  
 	  if (altDriveMode)
 	  {	  // normal tank with straight drive assist when sticks within 10% of each other and
@@ -106,12 +108,12 @@ public class Drive extends CommandBase
 		  if (isLeftRightEqual(leftY, rightY, 10) && Math.abs(rightY) > .50)
 		  {
 			  // Reset angle measurement when entering this code first time after mode is enabled.
-			  if (!steeringAssistMode) navx.resetYaw();
+			  if (!steeringAssistMode) RobotContainer.navx.resetYaw();
 		
 			  // Angle is negative if robot veering left, positive if veering right when going forward.
 			  // It is opposite when going backward.
 		
-			  angle = (int) navx.getYaw();
+			  angle = (int) RobotContainer.navx.getYaw();
 		
 			  //LCD.printLine(5, "angle=%d", angle);
 		

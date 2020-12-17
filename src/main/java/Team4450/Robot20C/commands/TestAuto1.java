@@ -8,6 +8,7 @@ import Team4450.Robot20C.RobotContainer;
 import Team4450.Robot20C.subsystems.DriveBase;
 
 import edu.wpi.first.wpilibj.geometry.Pose2d;
+import edu.wpi.first.wpilibj.geometry.Rotation2d;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
@@ -66,8 +67,10 @@ public class TestAuto1 extends CommandBase
 		// Set Talon ramp rate for smooth acceleration from stop. Determine by observation.
 		driveBase.SetCANTalonRampRate(1.0);
 			
-		// Reset odometry tracking.
-		driveBase.resetOdometer(new Pose2d(0.0, 0.0, RobotContainer.navx.getTotalYaw2d()));
+		// Reset odometry tracking with initial x,y position and heading (set above) specific to this 
+		// auto routine. Robot must be placed in same starting location each time for pose tracking
+		// to work. The settings below are the starting point default for 2021 field.
+		driveBase.resetOdometer(new Pose2d(INITIAL_X, INITIAL_Y, new Rotation2d()), RobotContainer.navx.getHeading());
 		
 		// Since a typical autonomous program consists of multiple actions, which are commands
 		// in this style of programming, we will create a list of commands for the actions to

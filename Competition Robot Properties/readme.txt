@@ -1,1 +1,1 @@
-Copy this properties file to src/main/deploy to have the file downloaded to the robot by the gradle build.
+Copy this properties file to /home/lvuser on the RoboRio on the competition robot.

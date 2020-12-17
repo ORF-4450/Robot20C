@@ -6,6 +6,8 @@ import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
 
 import Team4450.Lib.Util;
 import Team4450.Lib.ValveDA;
+import Team4450.Lib.LCD;
+
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.InterruptHandlerFunction;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -48,6 +50,9 @@ public class Pickup extends SubsystemBase
 	public void periodic() 
 	{
 		// This method will be called once per scheduler run
+		
+		// Update current status of ball eye on dashboard.
+		if (robot.isEnabled()) LCD.set(LCD_9, 25, "ball eye=%b ", getBallEye());
 	}
 
 	private void updateDS()
@@ -186,6 +191,15 @@ public class Pickup extends SubsystemBase
 //	     {
 //			return channel;
 //	     }
+	}
+	
+	/**
+	 * Returns state of ball detector electric eye.
+	 * @return True means ball blocking eye. Will only be true when ball passing eye.
+	 */
+	public boolean getBallEye()
+	{
+		return !ballEye.get();
 	}
 
 	// Initialize and Log status indication from CANTalon. If we see an exception

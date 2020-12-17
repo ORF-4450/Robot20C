@@ -16,8 +16,10 @@ import edu.wpi.first.wpilibj.DriverStation;
  */
 public final class Constants
 {
-	public static String		PROGRAM_NAME = "RAC20C-11.28.20-2";
+	public static String		PROGRAM_NAME = "RAC20C-12.16.20-1";
 
+	public static Robot			robot;
+	
 	public static Properties	robotProperties;
 	  
 	public static boolean		isClone = false, isComp = false;
@@ -50,7 +52,8 @@ public final class Constants
 
 	public static final DriverStation	ds = DriverStation.getInstance();
 
-	public static final double	TALON_RAMP_RATE = 0.5, DRIVE_WHEEL_DIAMETER = 6.125;
+	public static final double	TALON_RAMP_RATE = 1.0;			// Takes 1 sec for full power to be applied.
+	public static final double  DRIVE_WHEEL_DIAMETER = 6.125;	// Inches.
 	public static final double	COLORWHEEL_SPEED = .25;
 	public static final int		COLORWHEEL_ROTATIONS = 3;
 	public static final double	STEERING_ASSIST_GAIN = .05;
@@ -63,4 +66,10 @@ public final class Constants
 	public static final int		LCD_5 = 5;	// AutoDrive.
 	public static final int		LCD_7 = 7;	// DriveCommand.
 	public static final int		LCD_8 = 8;	// DriveCommand.
+	public static final int		LCD_9 = 9;	// DriveCommand, pickup.
+	
+	// Default starting  field position for pose tracking.
+	public static final double	INITIAL_X = 1.2;
+	public static final double	INITIAL_Y = 0.5;
+	public static final double	INITIAL_HEADING = 0;
 }

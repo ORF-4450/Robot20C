@@ -48,7 +48,7 @@ public class RobotContainer
 	// Subsystems.
 	
 	private final DriveBase 	driveBase;
-	private final Pickup		pickup;
+	public static Pickup		pickup;
 	private final ColorWheel	colorWheel;
 	private final Climber		climber;
 	private final Drive			driveCommand;
